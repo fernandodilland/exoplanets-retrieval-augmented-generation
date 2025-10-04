@@ -17,18 +17,17 @@
 <body class="bg-white text-gray-900 min-h-screen">
     
     <!-- Header with Logout and Public Site buttons -->
-    <header class="bg-gray-50 border-b border-gray-200">
+    <header style="background-color: #1b2b85;">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <svg class="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <h1 class="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+                <img src="img/favicon.png" alt="Logo" class="w-8 h-8">
+                <h1 class="text-xl font-bold text-white">Admin Dashboard</h1>
             </div>
             <div class="flex space-x-3">
                 <a href="https://exoplanets.fernandodilland.com/" 
                    target="_blank"
-                   class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-300 flex items-center space-x-2">
+                   style="background-color: #e7f434;"
+                   class="px-6 py-2 hover:opacity-90 text-gray-900 font-semibold rounded-lg transition duration-300 flex items-center space-x-2 shadow-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                     </svg>
@@ -52,32 +51,33 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             <!-- Section 1: Upload Files for Training -->
-            <section class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <div class="flex items-center mb-4 border-b border-gray-200 pb-4">
-                <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <section style="background-color: #044acb;" class="rounded-xl shadow-lg p-6 border-0">
+            <div class="flex items-center mb-4 border-b border-white border-opacity-30 pb-4">
+                <svg class="w-8 h-8 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <h2 class="text-2xl font-bold text-gray-800">Upload Files for Training</h2>
+                <h2 class="text-2xl font-bold text-white">Upload Files for Training</h2>
             </div>
             
             <!-- Description -->
-            <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p class="text-sm text-gray-700 leading-relaxed">
+            <div class="mb-4 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-3">
+                <p class="text-sm text-white leading-relaxed">
                     Upload training data files to enhance the RAG (Retrieval-Augmented Generation) model. Files are stored in Cloudflare R2 bucket and processed to create vector embeddings for intelligent information retrieval.
                 </p>
             </div>
             
             <!-- Upload Area -->
             <div class="mb-4">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-gray-50 transition duration-300">
-                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="border-2 border-dashed border-white border-opacity-50 rounded-lg p-6 text-center hover:border-white hover:bg-white hover:bg-opacity-10 transition duration-300">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <p class="text-sm text-gray-700 mb-1">Drag and drop files here or click to browse</p>
-                    <p class="text-xs text-gray-500">Maximum file size: 4MB</p>
+                    <p class="text-sm text-white mb-1">Drag and drop files here or click to browse</p>
+                    <p class="text-xs text-gray-200">Maximum file size: 4MB</p>
                     <input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.json,.csv,.xlsx,.xlsm,.xlsb,.xls,.et,.docx,.ods,.odt,.numbers,.txt,.rst,.log,.ini,.conf,.env,.properties,.gitignore,.editorconfig,.toml,.markdown,.md,.mdx,.tex,.latex,.sh,.bat,.ps1,.sgml,.yaml,.yml,.css,.js,.php,.py,.rb,.java,.c,.cpp,.cxx,.h,.hpp,.go,.rs,.swift,.dart,.jpeg,.jpg,.png,.webp,.svg,.html,.xml">
                     <button onclick="document.getElementById('fileInput').click()" 
-                            class="mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition duration-300">
+                            style="background-color: #e7f434;"
+                            class="mt-3 px-5 py-2 hover:opacity-90 text-gray-900 text-sm font-semibold rounded-lg transition duration-300 shadow-md">
                         Select Files
                     </button>
                 </div>
@@ -85,7 +85,7 @@
             
             <!-- Supported Formats -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">Supported File Formats:</h3>
+                <h3 class="text-lg font-semibold text-white mb-3">Supported File Formats:</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <!-- PDF -->
                     <div class="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3 text-center hover:from-red-100 hover:to-pink-100 transition duration-300">
@@ -203,17 +203,17 @@
             </section>
 
             <!-- Section 2: Exoplanet Analysis Request -->
-            <section class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <div class="flex items-center mb-4 border-b border-gray-200 pb-4">
-                <svg class="w-8 h-8 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <section style="background-color: #044acb;" class="rounded-xl shadow-lg p-6 border-0">
+            <div class="flex items-center mb-4 border-b border-white border-opacity-30 pb-4">
+                <svg class="w-8 h-8 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
-                <h2 class="text-2xl font-bold text-gray-800">Request Exoplanet Analysis</h2>
+                <h2 class="text-2xl font-bold text-white">Request Exoplanet Analysis</h2>
             </div>
             
             <!-- Description -->
-            <div class="mb-4 bg-purple-50 border border-purple-200 rounded-lg p-3">
-                <p class="text-sm text-gray-700 leading-relaxed">
+            <div class="mb-4 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-3">
+                <p class="text-sm text-white leading-relaxed">
                     Describe the characteristics of the exoplanet you want to analyze. The RAG system will retrieve relevant information from the knowledge base and provide intelligent insights based on trained data.
                 </p>
             </div>
@@ -222,20 +222,20 @@
             <div class="space-y-4">
                 <!-- Main Query -->
                 <div>
-                    <label for="exoplanetPrompt" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="exoplanetPrompt" class="block text-sm font-medium text-white mb-2">
                         Exoplanet Characteristics
                     </label>
                     <textarea 
                         id="exoplanetPrompt" 
                         rows="4" 
-                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         placeholder="Example: Analyze an exoplanet with a radius 1.2 times that of Earth, located in the habitable zone of a G-type star..."></textarea>
                 </div>
 
                 <!-- Configuration Parameters -->
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-4">
+                    <h3 class="text-base font-semibold text-white mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
@@ -245,7 +245,7 @@
                     <div class="grid grid-cols-1 gap-3">
                         <!-- Maximum Results -->
                         <div>
-                            <label for="maxResults" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="maxResults" class="block text-xs font-medium text-white mb-1">
                                 Maximum Results
                             </label>
                             <input 
@@ -254,14 +254,14 @@
                                 min="1" 
                                 max="50" 
                                 value="10"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Number of results (1-50)</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Number of results (1-50)</p>
                         </div>
 
                         <!-- Match Threshold -->
                         <div>
-                            <label for="scoreThreshold" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="scoreThreshold" class="block text-xs font-medium text-white mb-1">
                                 Match Threshold
                             </label>
                             <input 
@@ -271,14 +271,14 @@
                                 max="1" 
                                 step="0.1"
                                 value="0.4"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Similarity score (0.0-1.0)</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Similarity score (0.0-1.0)</p>
                         </div>
 
                         <!-- Radius (Earth Radii) -->
                         <div>
-                            <label for="planetRadius" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="planetRadius" class="block text-xs font-medium text-white mb-1">
                                 Planet Radius (Earth Radii)
                             </label>
                             <input 
@@ -287,14 +287,14 @@
                                 min="0" 
                                 step="0.1"
                                 placeholder="e.g., 1.2"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Radius relative to Earth</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Radius relative to Earth</p>
                         </div>
 
                         <!-- Mass (Earth Masses) -->
                         <div>
-                            <label for="planetMass" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="planetMass" class="block text-xs font-medium text-white mb-1">
                                 Planet Mass (Earth Masses)
                             </label>
                             <input 
@@ -303,14 +303,14 @@
                                 min="0" 
                                 step="0.1"
                                 placeholder="e.g., 5.5"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Mass relative to Earth</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Mass relative to Earth</p>
                         </div>
 
                         <!-- Orbital Period (Days) -->
                         <div>
-                            <label for="orbitalPeriod" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="orbitalPeriod" class="block text-xs font-medium text-white mb-1">
                                 Orbital Period (Days)
                             </label>
                             <input 
@@ -319,14 +319,14 @@
                                 min="0" 
                                 step="0.1"
                                 placeholder="e.g., 365.25"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Time to complete one orbit</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Time to complete one orbit</p>
                         </div>
 
                         <!-- Distance (Light Years) -->
                         <div>
-                            <label for="distance" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="distance" class="block text-xs font-medium text-white mb-1">
                                 Distance (Light Years)
                             </label>
                             <input 
@@ -335,19 +335,19 @@
                                 min="0" 
                                 step="0.1"
                                 placeholder="e.g., 40.7"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
-                            <p class="text-xs text-gray-500 mt-0.5">Distance from Earth</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Distance from Earth</p>
                         </div>
 
                         <!-- Star Type -->
                         <div>
-                            <label for="starType" class="block text-xs font-medium text-gray-700 mb-1">
+                            <label for="starType" class="block text-xs font-medium text-white mb-1">
                                 Host Star Type
                             </label>
                             <select 
                                 id="starType"
-                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                             >
                                 <option value="">Select star type</option>
                                 <option value="O">O-type (Blue)</option>
@@ -358,7 +358,7 @@
                                 <option value="K">K-type (Orange)</option>
                                 <option value="M">M-type (Red)</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-0.5">Spectral classification</p>
+                            <p class="text-xs text-gray-200 mt-0.5">Spectral classification</p>
                         </div>
 
                         <!-- In Habitable Zone -->
@@ -366,9 +366,9 @@
                             <input 
                                 type="checkbox" 
                                 id="habitableZone"
-                                class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-purple-500"
+                                class="w-4 h-4 text-yellow-400 bg-white border-white rounded focus:ring-yellow-400"
                             >
-                            <label for="habitableZone" class="ml-2 text-xs font-medium text-gray-700">
+                            <label for="habitableZone" class="ml-2 text-xs font-medium text-white">
                                 Located in Habitable Zone
                             </label>
                         </div>
@@ -377,7 +377,8 @@
                 
                 <button 
                     onclick="requestAnalysis()"
-                    class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold text-base rounded-lg transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                    style="background-color: #e7f434;"
+                    class="w-full px-5 py-3 hover:opacity-90 text-gray-900 font-bold text-base rounded-lg transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
