@@ -1,0 +1,8 @@
+name = "vectorize-inspector"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Binding para tu índice Vectorize
+[[vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "autorag-rag-exoplanets"

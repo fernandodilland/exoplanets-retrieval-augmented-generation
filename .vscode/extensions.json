@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "cloudflare.vscode-wrangler",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ]
+}

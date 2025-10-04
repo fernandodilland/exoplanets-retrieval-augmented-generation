@@ -1,0 +1,93 @@
+/* Estilos personalizados para el sitio de Exoplanets - Light Mode */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Asegurar que el video cubra completamente el banner */
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Animaciones suaves para el banner */
+.fade-in-banner {
+    animation: fadeInUp 1.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Remove scroll animations - items visible by default */
+.scroll-reveal,
+.file-item,
+.result-item {
+    opacity: 1;
+    transform: none;
+}
+
+/* Custom scrollbar for webkit browsers - Light mode */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Estilos adicionales para mejorar la legibilidad del texto sobre el video */
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Asegurar que el overlay no afecte la interactividad del contenido */
+.video-overlay {
+    pointer-events: none;
+}
+
+/* Hover effects for cards */
+.hover-lift:hover {
+    transform: translateY(-4px);
+    transition: transform 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .fade-in-banner h1 {
+        font-size: 2rem;
+    }
+    
+    .fade-in-banner p {
+        font-size: 1rem;
+    }
+}
+
+/* Optimización para dispositivos móviles */
+@media (max-width: 640px) {
+    video {
+        object-position: center;
+    }
+    
+    .scroll-reveal {
+        transform: translateY(20px);
+    }
+}

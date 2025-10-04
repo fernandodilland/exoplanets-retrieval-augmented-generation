@@ -1,0 +1,23 @@
+{
+  "name": "vectorize-inspector",
+  "version": "1.0.0",
+  "description": "Worker para inspeccionar contenido de Vectorize",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev --remote",
+    "dev:local": "wrangler dev --local",
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev --remote"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "vectorize"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "wrangler": "^4.42.0"
+  }
+}
