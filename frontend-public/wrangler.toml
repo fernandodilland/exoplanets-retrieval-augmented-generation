@@ -14,7 +14,7 @@ ENVIRONMENT = "production"
 [env.development]
 vars = { ENVIRONMENT = "development" }
 
-# Configuración de rutas personalizadas (opcional)
-[routes]
-pattern = "exoplanets.fernandodilland.com/*"
-zone_name = "exoplanets.fernandodilland.com"
+# Configuración de dominio personalizado
+[[routes]]
+pattern = "exoplanets.fernandodilland.com"
+custom_domain = true

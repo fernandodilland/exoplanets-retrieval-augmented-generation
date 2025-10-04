@@ -11,6 +11,28 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "outputCapture": "std"
+    },
+    {
+      "name": "frontend - public (local)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend-public",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "outputCapture": "std"
+    },
+    {
+      "name": "frontend - public (deploy)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend-public",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "deploy"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "outputCapture": "std"
     }
   ]
 }

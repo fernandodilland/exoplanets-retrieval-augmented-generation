@@ -90,6 +90,50 @@
         "reveal": "always",
         "panel": "new"
       }
+    },
+    {
+      "label": "Frontend Public: Dev Local",
+      "type": "shell",
+      "command": "npx",
+      "args": ["wrangler", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend-public"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+          "file": 1,
+          "location": 2,
+          "severity": 3,
+          "code": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting.*$",
+          "endsPattern": "^.*Ready on.*$"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "frontend"
+      }
+    },
+    {
+      "label": "Frontend Public: Deploy",
+      "type": "shell",
+      "command": "npx",
+      "args": ["wrangler", "deploy"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend-public"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "frontend"
+      }
     }
   ]
 }
