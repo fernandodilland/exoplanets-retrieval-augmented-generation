@@ -1,0 +1,20 @@
+name = "admin-exoplanets"
+compatibility_date = "2025-07-08"
+
+[assets]
+directory = "./src"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
+
+# Variables de entorno (opcional)
+[vars]
+ENVIRONMENT = "production"
+
+# Para desarrollo local
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Configuración de dominio personalizado
+[[routes]]
+pattern = "admin-exoplanets.fernandodilland.com"
+custom_domain = true

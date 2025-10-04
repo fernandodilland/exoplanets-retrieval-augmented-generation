@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Exoplanets RAG</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-white text-gray-900 min-h-screen">
+    
+    <!-- Header with Logout and Public Site buttons -->
+    <header class="bg-gray-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h1 class="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+            </div>
+            <div class="flex space-x-3">
+                <a href="https://exoplanets.fernandodilland.com/" 
+                   target="_blank"
+                   class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-300 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                    <span>Public Site</span>
+                </a>
+                <button onclick="logout()" 
+                        class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-300 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Section 1: Upload Files for Training -->
+            <section class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <div class="flex items-center mb-4 border-b border-gray-200 pb-4">
+                <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <h2 class="text-2xl font-bold text-gray-800">Upload Files for Training</h2>
+            </div>
+            
+            <!-- Description -->
+            <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    Upload training data files to enhance the RAG (Retrieval-Augmented Generation) model. Files are stored in Cloudflare R2 bucket and processed to create vector embeddings for intelligent information retrieval.
+                </p>
+            </div>
+            
+            <!-- Upload Area -->
+            <div class="mb-4">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-gray-50 transition duration-300">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p class="text-sm text-gray-700 mb-1">Drag and drop files here or click to browse</p>
+                    <p class="text-xs text-gray-500">Maximum file size: 4MB</p>
+                    <input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.json,.csv,.xlsx,.xlsm,.xlsb,.xls,.et,.docx,.ods,.odt,.numbers,.txt,.rst,.log,.ini,.conf,.env,.properties,.gitignore,.editorconfig,.toml,.markdown,.md,.mdx,.tex,.latex,.sh,.bat,.ps1,.sgml,.yaml,.yml,.css,.js,.php,.py,.rb,.java,.c,.cpp,.cxx,.h,.hpp,.go,.rs,.swift,.dart,.jpeg,.jpg,.png,.webp,.svg,.html,.xml">
+                    <button onclick="document.getElementById('fileInput').click()" 
+                            class="mt-3 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition duration-300">
+                        Select Files
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Supported Formats -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Supported File Formats:</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <!-- PDF -->
+                    <div class="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3 text-center hover:from-red-100 hover:to-pink-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-red-700">PDF</p>
+                    </div>
+                    
+                    <!-- JSON -->
+                    <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-3 text-center hover:from-yellow-100 hover:to-amber-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-amber-700">JSON</p>
+                    </div>
+                    
+                    <!-- CSV -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 text-center hover:from-green-100 hover:to-emerald-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-green-700">CSV</p>
+                    </div>
+                    
+                    <!-- XLSX -->
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-3 text-center hover:from-emerald-100 hover:to-teal-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-emerald-700">XLSX</p>
+                    </div>
+                    
+                    <!-- TXT -->
+                    <div class="bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-300 rounded-lg p-3 text-center hover:from-gray-100 hover:to-slate-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-gray-700">TXT</p>
+                    </div>
+                    
+                    <!-- MD -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 text-center hover:from-blue-100 hover:to-indigo-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-blue-700">MD</p>
+                    </div>
+                    
+                    <!-- DOCX -->
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-3 text-center hover:from-indigo-100 hover:to-purple-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-indigo-700">DOCX</p>
+                    </div>
+
+                    <!-- HTML -->
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 text-center hover:from-orange-100 hover:to-red-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-orange-700">HTML</p>
+                    </div>
+
+                    <!-- XML -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 text-center hover:from-purple-100 hover:to-pink-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-purple-700">XML</p>
+                    </div>
+
+                    <!-- YAML -->
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-3 text-center hover:from-cyan-100 hover:to-blue-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-cyan-700">YAML/YML</p>
+                    </div>
+
+                    <!-- Python -->
+                    <div class="bg-gradient-to-r from-blue-50 to-yellow-50 border border-blue-300 rounded-lg p-3 text-center hover:from-blue-100 hover:to-yellow-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-blue-800">PY</p>
+                    </div>
+
+                    <!-- JavaScript -->
+                    <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-300 rounded-lg p-3 text-center hover:from-yellow-100 hover:to-yellow-200 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-yellow-800">JS</p>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 rounded-lg p-3 text-center hover:from-pink-100 hover:to-rose-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-pink-700">IMG</p>
+                    </div>
+
+                    <!-- More formats -->
+                    <div class="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-300 rounded-lg p-3 text-center hover:from-slate-100 hover:to-gray-100 transition duration-300">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <p class="text-xs font-medium text-slate-700">+40 more</p>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- Section 2: Exoplanet Analysis Request -->
+            <section class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+            <div class="flex items-center mb-4 border-b border-gray-200 pb-4">
+                <svg class="w-8 h-8 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <h2 class="text-2xl font-bold text-gray-800">Request Exoplanet Analysis</h2>
+            </div>
+            
+            <!-- Description -->
+            <div class="mb-4 bg-purple-50 border border-purple-200 rounded-lg p-3">
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    Describe the characteristics of the exoplanet you want to analyze. The RAG system will retrieve relevant information from the knowledge base and provide intelligent insights based on trained data.
+                </p>
+            </div>
+            
+            <!-- Input Form -->
+            <div class="space-y-4">
+                <!-- Main Query -->
+                <div>
+                    <label for="exoplanetPrompt" class="block text-sm font-medium text-gray-700 mb-2">
+                        Exoplanet Characteristics
+                    </label>
+                    <textarea 
+                        id="exoplanetPrompt" 
+                        rows="4" 
+                        class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Example: Analyze an exoplanet with a radius 1.2 times that of Earth, located in the habitable zone of a G-type star..."></textarea>
+                </div>
+
+                <!-- Configuration Parameters -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Analysis Configuration
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- Maximum Results -->
+                        <div>
+                            <label for="maxResults" class="block text-xs font-medium text-gray-700 mb-1">
+                                Maximum Results
+                            </label>
+                            <input 
+                                type="number" 
+                                id="maxResults" 
+                                min="1" 
+                                max="50" 
+                                value="10"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Number of results (1-50)</p>
+                        </div>
+
+                        <!-- Match Threshold -->
+                        <div>
+                            <label for="scoreThreshold" class="block text-xs font-medium text-gray-700 mb-1">
+                                Match Threshold
+                            </label>
+                            <input 
+                                type="number" 
+                                id="scoreThreshold" 
+                                min="0" 
+                                max="1" 
+                                step="0.1"
+                                value="0.4"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Similarity score (0.0-1.0)</p>
+                        </div>
+
+                        <!-- Radius (Earth Radii) -->
+                        <div>
+                            <label for="planetRadius" class="block text-xs font-medium text-gray-700 mb-1">
+                                Planet Radius (Earth Radii)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="planetRadius" 
+                                min="0" 
+                                step="0.1"
+                                placeholder="e.g., 1.2"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Radius relative to Earth</p>
+                        </div>
+
+                        <!-- Mass (Earth Masses) -->
+                        <div>
+                            <label for="planetMass" class="block text-xs font-medium text-gray-700 mb-1">
+                                Planet Mass (Earth Masses)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="planetMass" 
+                                min="0" 
+                                step="0.1"
+                                placeholder="e.g., 5.5"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Mass relative to Earth</p>
+                        </div>
+
+                        <!-- Orbital Period (Days) -->
+                        <div>
+                            <label for="orbitalPeriod" class="block text-xs font-medium text-gray-700 mb-1">
+                                Orbital Period (Days)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="orbitalPeriod" 
+                                min="0" 
+                                step="0.1"
+                                placeholder="e.g., 365.25"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Time to complete one orbit</p>
+                        </div>
+
+                        <!-- Distance (Light Years) -->
+                        <div>
+                            <label for="distance" class="block text-xs font-medium text-gray-700 mb-1">
+                                Distance (Light Years)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="distance" 
+                                min="0" 
+                                step="0.1"
+                                placeholder="e.g., 40.7"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                            <p class="text-xs text-gray-500 mt-0.5">Distance from Earth</p>
+                        </div>
+
+                        <!-- Star Type -->
+                        <div>
+                            <label for="starType" class="block text-xs font-medium text-gray-700 mb-1">
+                                Host Star Type
+                            </label>
+                            <select 
+                                id="starType"
+                                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            >
+                                <option value="">Select star type</option>
+                                <option value="O">O-type (Blue)</option>
+                                <option value="B">B-type (Blue-white)</option>
+                                <option value="A">A-type (White)</option>
+                                <option value="F">F-type (Yellow-white)</option>
+                                <option value="G">G-type (Yellow)</option>
+                                <option value="K">K-type (Orange)</option>
+                                <option value="M">M-type (Red)</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-0.5">Spectral classification</p>
+                        </div>
+
+                        <!-- In Habitable Zone -->
+                        <div class="flex items-center pt-2">
+                            <input 
+                                type="checkbox" 
+                                id="habitableZone"
+                                class="w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-purple-500"
+                            >
+                            <label for="habitableZone" class="ml-2 text-xs font-medium text-gray-700">
+                                Located in Habitable Zone
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button 
+                    onclick="requestAnalysis()"
+                    class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold text-base rounded-lg transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Request Analysis</span>
+                </button>
+            </div>
+            
+            <!-- Results Area (initially hidden) -->
+            <div id="resultsArea" class="mt-6 hidden">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Analysis Results:</h3>
+                    <div id="resultsContent" class="text-gray-700 leading-relaxed">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            </section>
+        
+        </div>
+        <!-- End Two Column Layout -->
+
+    </main>
+
+    <!-- Custom JavaScript -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
