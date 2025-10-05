@@ -7,6 +7,12 @@ let totalFilesCount = 0;
 let totalResultsCount = 0;
 const itemsPerPage = 20;
 
+// Auto-refresh state management
+let autoRefreshInterval = null;
+let lastFilesData = null;
+let lastResultsData = null;
+const AUTO_REFRESH_INTERVAL = 3000; // 3 seconds
+
 // Video initialization
 function initializeVideo() {
     const video = document.querySelector('video');
@@ -98,9 +104,11 @@ function showFilesLoading() {
 }
 
 // Load files from API
-async function loadFiles(page = 1) {
+async function loadFiles(page = 1, showLoading = true) {
     try {
-        showFilesLoading();
+        if (showLoading) {
+            showFilesLoading();
+        }
         
         // Get total count and files in parallel
         const [countResult, filesResult] = await Promise.all([
@@ -205,9 +213,11 @@ function showResultsLoading() {
 }
 
 // Load results from API
-async function loadResults(page = 1) {
+async function loadResults(page = 1, showLoading = true) {
     try {
-        showResultsLoading();
+        if (showLoading) {
+            showResultsLoading();
+        }
         
         // Get total count and results in parallel
         const [countResult, resultsResult] = await Promise.all([
@@ -487,16 +497,158 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Check if data has changed (compare arrays)
+function hasDataChanged(oldData, newData) {
+    if (!oldData || !newData) return true;
+    if (oldData.length !== newData.length) return true;
+    
+    // Compare each item by uid and updated_at/created_at
+    for (let i = 0; i < oldData.length; i++) {
+        const oldItem = oldData[i];
+        const newItem = newData[i];
+        
+        if (oldItem.uid !== newItem.uid) return true;
+        
+        // Check timestamps
+        const oldTime = oldItem.updated_at || oldItem.created_at;
+        const newTime = newItem.updated_at || newItem.created_at;
+        
+        if (oldTime !== newTime) return true;
+    }
+    
+    return false;
+}
+
+// Auto-refresh files silently (without loading animation)
+async function autoRefreshFiles() {
+    try {
+        // Get data silently
+        const [countResult, filesResult] = await Promise.all([
+            getFilesCount(),
+            getFiles(currentFilesPage, itemsPerPage)
+        ]);
+        
+        if (countResult.success && filesResult.success) {
+            const newTotalCount = countResult.data.count;
+            const newFilesData = filesResult.data;
+            
+            // Check if count changed or data changed
+            const countChanged = totalFilesCount !== newTotalCount;
+            const dataChanged = hasDataChanged(lastFilesData, newFilesData);
+            
+            if (countChanged || dataChanged) {
+                // Update state
+                totalFilesCount = newTotalCount;
+                lastFilesData = newFilesData;
+                
+                // Update UI without loading animation
+                if (newFilesData.length > 0) {
+                    displayFiles(newFilesData);
+                    updateFilesPagination();
+                } else {
+                    displayNoFiles();
+                    hideFilesPagination();
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error auto-refreshing files:', error);
+    }
+}
+
+// Auto-refresh results silently (without loading animation)
+async function autoRefreshResults() {
+    try {
+        // Get data silently
+        const [countResult, resultsResult] = await Promise.all([
+            getResultsCount(),
+            getResults(currentResultsPage, itemsPerPage)
+        ]);
+        
+        if (countResult.success && resultsResult.success) {
+            const newTotalCount = countResult.data.count;
+            const newResultsData = resultsResult.data;
+            
+            // Check if count changed or data changed
+            const countChanged = totalResultsCount !== newTotalCount;
+            const dataChanged = hasDataChanged(lastResultsData, newResultsData);
+            
+            if (countChanged || dataChanged) {
+                // Update state
+                totalResultsCount = newTotalCount;
+                lastResultsData = newResultsData;
+                
+                // Update UI without loading animation
+                if (newResultsData.length > 0) {
+                    displayResults(newResultsData);
+                    updateResultsPagination();
+                } else {
+                    displayNoResults();
+                    hideResultsPagination();
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error auto-refreshing results:', error);
+    }
+}
+
+// Start auto-refresh interval
+function startAutoRefresh() {
+    // Clear any existing interval
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    // Set up new interval
+    autoRefreshInterval = setInterval(async () => {
+        await Promise.all([
+            autoRefreshFiles(),
+            autoRefreshResults()
+        ]);
+    }, AUTO_REFRESH_INTERVAL);
+    
+    console.log(`🔄 Auto-refresh enabled: updating every ${AUTO_REFRESH_INTERVAL / 1000} seconds`);
+}
+
+// Stop auto-refresh interval
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        console.log('⏸️ Auto-refresh disabled');
+    }
+}
+
 // Detect if user prefers reduced motion (accessibility)
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Initialize everything on DOM load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     initializeVideo();
     
-    // Load data from API
-    loadFiles(1);
-    loadResults(1);
+    // Load data from API initially
+    await Promise.all([
+        loadFiles(1),
+        loadResults(1)
+    ]);
+    
+    // Store initial data for comparison
+    const [filesResult, resultsResult] = await Promise.all([
+        getFiles(currentFilesPage, itemsPerPage),
+        getResults(currentResultsPage, itemsPerPage)
+    ]);
+    
+    if (filesResult.success) {
+        lastFilesData = filesResult.data;
+    }
+    
+    if (resultsResult.success) {
+        lastResultsData = resultsResult.data;
+    }
+    
+    // Start auto-refresh after initial load
+    startAutoRefresh();
     
     // Pause video if user prefers reduced motion
     if (prefersReducedMotion.matches) {
@@ -504,6 +656,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (video) {
             video.pause();
         }
+    }
+});
+
+// Stop auto-refresh when page is hidden (to save resources)
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        stopAutoRefresh();
+    } else {
+        startAutoRefresh();
+        // Immediately refresh when page becomes visible again
+        autoRefreshFiles();
+        autoRefreshResults();
     }
 });
 

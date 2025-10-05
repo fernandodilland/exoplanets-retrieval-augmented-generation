@@ -137,9 +137,22 @@ Diagram generated with [diagrams.net](https://app.diagrams.net/).
 
 ### Frontend admin
 
+Management interface for administering the service, including user management, file uploads to Cloudflare R2, and monitoring AI Search usage.
+
+Login preview:
+![Frontend admin](assets/images/screenshot4.PNG)
+
+Dashboard preview:
+![Frontend admin](assets/images/screenshot5.PNG)
+
 ---
 
 ### Frontend public
+
+Public interface for users to interact with the service, submit queries, and receive AI-generated responses based on NASA data.
+
+Home preview:
+![Frontend public](assets/images/screenshot6.PNG)
 
 ---
 
@@ -167,6 +180,11 @@ Vector sample:
 
 Vector exported as JSON:
 ![Vector exported as JSON screenshot](assets/images/screenshot3.PNG)
+
+**Postman collection:** Contains all the backend endpoints for testing purposes.
+
+Postman screenshot:
+![Postman screenshot](assets/images/screenshot7.PNG)
 
 ---
 
