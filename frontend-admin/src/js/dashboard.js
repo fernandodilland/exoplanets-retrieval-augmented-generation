@@ -1,5 +1,63 @@
 // Dashboard Functionality
 
+// ===== UTILITY FUNCTIONS =====
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Show notification (simple alert for now, can be enhanced)
+function showNotification(message, type = 'info') {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        type === 'warning' ? 'bg-yellow-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.style.maxWidth = '400px';
+    notification.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
+                  type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' :
+                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'}
+            </svg>
+            <span class="font-semibold">${escapeHtml(message)}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
 // ===== GLOBAL LOGOUT FUNCTION =====
 function logout() {
     if (confirm('Are you sure you want to log out?')) {
@@ -291,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== FILE UPLOAD FUNCTIONALITY =====
     const fileInput = document.getElementById('fileInput');
-    const uploadBtn = document.getElementById('uploadBtn');
     const filePreview = document.getElementById('filePreview');
     const fileList = document.getElementById('fileList');
     const submitUpload = document.getElementById('submitUpload');
@@ -299,10 +356,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let selectedFiles = [];
     
-    // Click to select files
-    uploadBtn.addEventListener('click', function() {
-        fileInput.click();
-    });
+    // Check if elements exist
+    if (!fileInput || !filePreview || !fileList || !submitUpload) {
+        console.error('File upload elements not found in DOM');
+        return;
+    }
     
     // Handle file selection
     fileInput.addEventListener('change', function(e) {
@@ -311,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Drag and drop functionality
-    const uploadArea = uploadBtn.closest('.border-dashed');
+    const uploadArea = fileInput.closest('.border-dashed');
     
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
