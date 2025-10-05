@@ -4,15 +4,17 @@ File upload endpoints.
 import os
 from pathlib import Path
 from urllib.parse import quote
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from sqlalchemy.ext.asyncio import AsyncSession
-import aioboto3
 
-from app.database import get_db
-from app.models import User, File as FileModel
-from app.dependencies import get_current_user
-from app.schemas import UploadResponse
+import aioboto3
+import httpx
 from app.config import settings
+from app.database import get_db
+from app.dependencies import get_current_user
+from app.models import File as FileModel
+from app.models import User
+from app.schemas import UploadResponse
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api", tags=["Upload"])
 
@@ -141,9 +143,51 @@ async def upload_file(
                 detail=f"Database Error: Failed to save file metadata to database: {str(db_error)}"
             )
         
+        # Trigger AI Search sync to index the new file
+        sync_job_id = None
+        sync_message = "File uploaded successfully"
+        
+        try:
+            sync_url = f"https://api.cloudflare.com/client/v4/accounts/{settings.cloudflare_account_id}/autorag/rags/{settings.ai_search_name}/sync"
+            sync_headers = {
+                "Authorization": f"Bearer {settings.cloudflare_api_token}"
+            }
+            
+            async with httpx.AsyncClient() as client:
+                sync_response = await client.patch(
+                    sync_url,
+                    headers=sync_headers,
+                    timeout=10.0
+                )
+                sync_response.raise_for_status()
+                sync_result = sync_response.json()
+                
+                if sync_result.get("success", False):
+                    sync_job_id = sync_result.get("result", {}).get("job_id")
+                    sync_message = f"File uploaded successfully. AI Search sync job started (Job ID: {sync_job_id})"
+                else:
+                    sync_message = "File uploaded successfully, but AI Search sync could not be triggered"
+                    
+        except httpx.HTTPStatusError as sync_error:
+            # Log sync error but don't fail the upload
+            error_msg = f"HTTP {sync_error.response.status_code}"
+            
+            if sync_error.response.status_code == 401:
+                error_msg = "Invalid API token for AI Search sync"
+            elif sync_error.response.status_code == 403:
+                error_msg = "API token lacks permissions for AI Search sync"
+            elif sync_error.response.status_code == 404:
+                error_msg = f"AI Search '{settings.ai_search_name}' not found"
+            
+            sync_message = f"File uploaded successfully, but AI Search sync failed: {error_msg}"
+            
+        except Exception as sync_error:
+            # Log sync error but don't fail the upload
+            sync_message = f"File uploaded successfully, but AI Search sync encountered an error: {str(sync_error)}"
+        
         return UploadResponse(
             success=True,
-            message="File uploaded successfully",
+            message=sync_message,
             file_uid=new_file.uid,
             url=file_url
         )
