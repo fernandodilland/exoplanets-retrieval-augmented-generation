@@ -1,17 +1,29 @@
-// Dashboard Functionality (Dummy Implementation)
+// Dashboard Functionality
+
+// ===== GLOBAL LOGOUT FUNCTION =====
+function logout() {
+    if (confirm('Are you sure you want to log out?')) {
+        // Remove authentication token
+        removeToken();
+        console.log('Logged out successfully');
+        // Redirect to login page
+        window.location.href = 'acceso/index.html';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ===== LOGOUT FUNCTIONALITY =====
-    const logoutBtn = document.getElementById('logoutBtn');
-    logoutBtn.addEventListener('click', function() {
-        if (confirm('Are you sure you want to log out?')) {
-            // Simulate logout
-            console.log('Logging out...');
-            // Redirect to login page
-            window.location.href = '../acceso/src/index.html';
-        }
-    });
+    // ===== AUTHENTICATION CHECK =====
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        console.log('User not authenticated, redirecting to login...');
+        window.location.href = 'acceso/index.html';
+        return;
+    }
+    
+    // Display user info
+    const userInfo = getUserInfo();
+    console.log('Logged in as:', userInfo.username);
     
     // ===== FILE UPLOAD FUNCTIONALITY =====
     const fileInput = document.getElementById('fileInput');
@@ -116,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Submit upload
-    submitUpload.addEventListener('click', function() {
+    submitUpload.addEventListener('click', async function() {
         if (selectedFiles.length === 0) {
             showNotification('No files selected', 'error');
             return;
@@ -133,20 +145,54 @@ document.addEventListener('DOMContentLoaded', function() {
             Uploading...
         `;
         
-        // Simulate upload to R2
-        console.log('Uploading files to R2:', selectedFiles);
+        // Upload files one by one
+        let successCount = 0;
+        let errorCount = 0;
         
-        setTimeout(() => {
-            this.disabled = false;
-            this.innerHTML = originalText;
-            showNotification(`Successfully uploaded ${selectedFiles.length} file(s) to R2 bucket!`, 'success');
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
+            console.log(`Uploading file ${i + 1}/${selectedFiles.length}:`, file.name);
             
-            // Clear selection
+            try {
+                const result = await uploadFile(file, (progress) => {
+                    console.log(`Upload progress for ${file.name}: ${progress.toFixed(1)}%`);
+                });
+                
+                if (result.success) {
+                    successCount++;
+                    console.log(`File uploaded successfully: ${file.name}`, result.data);
+                } else {
+                    errorCount++;
+                    console.error(`Failed to upload ${file.name}:`, result.error);
+                    showNotification(`Failed to upload ${file.name}: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(`Error uploading ${file.name}:`, error);
+                showNotification(`Error uploading ${file.name}`, 'error');
+            }
+        }
+        
+        // Restore button state
+        this.disabled = false;
+        this.innerHTML = originalText;
+        
+        // Show summary notification
+        if (successCount > 0 && errorCount === 0) {
+            showNotification(`Successfully uploaded ${successCount} file(s) to R2 bucket!`, 'success');
+        } else if (successCount > 0 && errorCount > 0) {
+            showNotification(`Uploaded ${successCount} file(s), ${errorCount} failed`, 'info');
+        } else {
+            showNotification(`Failed to upload files`, 'error');
+        }
+        
+        // Clear selection if all successful
+        if (errorCount === 0) {
             selectedFiles = [];
             fileList.innerHTML = '';
             filePreview.classList.add('hidden');
             fileInput.value = '';
-        }, 2000);
+        }
     });
     
     // ===== EXOPLANET ANALYSIS FUNCTIONALITY =====
@@ -156,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const analysisResponse = document.getElementById('analysisResponse');
     const responseContent = document.getElementById('responseContent');
     
-    requestAnalysisBtn.addEventListener('click', function() {
+    requestAnalysisBtn.addEventListener('click', async function() {
         const query = exoplanetQuery.value.trim();
         
         if (!query) {
@@ -175,42 +221,75 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>Processing...</span>
         `;
         
-        // Simulate AI analysis
-        console.log('Requesting analysis for:', query);
-        
-        setTimeout(() => {
+        try {
+            console.log('Requesting AI analysis for:', query);
+            const startTime = Date.now();
+            
+            // Send AI request
+            const result = await sendAIRequest(query);
+            
+            const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            
+            // Restore button state
             this.disabled = false;
             this.innerHTML = originalText;
             
-            // Show dummy response
-            analysisResponse.classList.remove('hidden');
-            analysisResponse.classList.add('success-pulse');
+            if (result.success) {
+                // Show response
+                analysisResponse.classList.remove('hidden');
+                analysisResponse.classList.add('success-pulse');
+                
+                const aiResponse = result.data;
+                
+                responseContent.innerHTML = `
+                    <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <p class="font-semibold text-purple-900 mb-2">📊 Query:</p>
+                        <p class="text-gray-700">${escapeHtml(aiResponse.question)}</p>
+                    </div>
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p class="font-semibold text-blue-900 mb-2">🤖 AI Response:</p>
+                        <div class="text-gray-700 whitespace-pre-wrap">${escapeHtml(aiResponse.response)}</div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p>⏱️ Processing time: ${processingTime} seconds</p>
+                        <p>📅 Generated at: ${new Date(aiResponse.created_at).toLocaleString()}</p>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    analysisResponse.classList.remove('success-pulse');
+                }, 500);
+                
+                showNotification('AI analysis completed successfully', 'success');
+            } else {
+                // Show error
+                showNotification(result.error || 'Failed to get AI response', 'error');
+                
+                analysisResponse.classList.remove('hidden');
+                responseContent.innerHTML = `
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
+                        <p class="text-red-700">${escapeHtml(result.error || 'Unknown error occurred')}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('AI request error:', error);
             
+            // Restore button state
+            this.disabled = false;
+            this.innerHTML = originalText;
+            
+            showNotification('An unexpected error occurred', 'error');
+            
+            analysisResponse.classList.remove('hidden');
             responseContent.innerHTML = `
-                <p class="mb-3">
-                    <strong>Query:</strong> ${query}
-                </p>
-                <p class="mb-3">
-                    Based on the analysis of the exoplanet data stored in our RAG system, here are the findings:
-                </p>
-                <ul class="list-disc list-inside space-y-2 ml-4">
-                    <li>Vector search performed across ${Math.floor(Math.random() * 1000) + 500} indexed documents</li>
-                    <li>Retrieved ${Math.floor(Math.random() * 10) + 5} most relevant results with similarity scores > 0.4</li>
-                    <li>Generated response using Llama 3.3 70B model</li>
-                    <li>Processing time: ${(Math.random() * 2 + 1).toFixed(2)} seconds</li>
-                </ul>
-                <div class="mt-4 p-4 bg-white rounded-lg border border-purple-200">
-                    <p class="text-gray-700">
-                        <em>This is a dummy response. In production, this would display the actual AI-generated analysis 
-                        based on your query, using data from Cloudflare Vectorize and powered by the Llama 3.3 70B model.</em>
-                    </p>
+                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
+                    <p class="text-red-700">${escapeHtml(error.message || 'Unknown error')}</p>
                 </div>
             `;
-            
-            setTimeout(() => {
-                analysisResponse.classList.remove('success-pulse');
-            }, 500);
-        }, 2000);
+        }
     });
     
     clearQueryBtn.addEventListener('click', function() {
@@ -228,6 +307,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
     // Show notification

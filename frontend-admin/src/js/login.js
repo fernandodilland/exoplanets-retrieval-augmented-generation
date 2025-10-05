@@ -1,8 +1,15 @@
 // Login Form Handler
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if already authenticated
+    if (isAuthenticated()) {
+        console.log('User already authenticated, redirecting to dashboard...');
+        window.location.href = '../index.html';
+        return;
+    }
+    
     const loginForm = document.getElementById('loginForm');
     
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const username = document.getElementById('username').value;
@@ -16,30 +23,48 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Dummy authentication - Replace with actual API call
-        console.log('Login attempt:', { username, password, turnstileToken: turnstileToken.value });
-        
-        // Simulate API call
+        // Show authenticating message
         showMessage('Authenticating...', 'info');
         
-        setTimeout(() => {
-            // Dummy validation
-            if (username && password) {
-                // In production, validate credentials with backend
-                showMessage('Login successful! Redirecting...', 'success');
+        try {
+            // Call login API
+            const result = await login(username, password, turnstileToken.value);
+            
+            if (result.success) {
+                // Save token to cookie
+                const tokenSaved = saveToken(result.data.access_token);
                 
-                // Store session (dummy)
-                sessionStorage.setItem('isAuthenticated', 'true');
-                sessionStorage.setItem('username', username);
-                
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1500);
+                if (tokenSaved) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    // Get user info from token
+                    const userInfo = getUserInfo();
+                    console.log('Logged in as:', userInfo.username);
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                } else {
+                    showMessage('Failed to save authentication token', 'error');
+                }
             } else {
-                showMessage('Invalid credentials', 'error');
+                showMessage(result.error || 'Invalid credentials', 'error');
+                
+                // Reset Turnstile widget if available
+                if (typeof turnstile !== 'undefined') {
+                    turnstile.reset();
+                }
             }
-        }, 1000);
+        } catch (error) {
+            console.error('Login error:', error);
+            showMessage('An error occurred during login. Please try again.', 'error');
+            
+            // Reset Turnstile widget if available
+            if (typeof turnstile !== 'undefined') {
+                turnstile.reset();
+            }
+        }
     });
     
     function showMessage(message, type) {
