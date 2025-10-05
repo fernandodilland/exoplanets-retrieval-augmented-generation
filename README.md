@@ -14,7 +14,7 @@ Web application for querying NASA information using artificial intelligence.
 
 ![Main image](assets/images/principal.webp)
 
-Photos by: [NASA Images](https://www.nasa.gov/images/) and edited in [Photopea](https://www.photopea.com/).
+*Photos by: [NASA Images](https://www.nasa.gov/images/) and edited in [Photopea](https://www.photopea.com/).*
 
 ---
 
@@ -23,7 +23,7 @@ Photos by: [NASA Images](https://www.nasa.gov/images/) and edited in [Photopea](
 The project uses modern technologies, allowing users to access two websites: a public frontend and an admin frontend. Both are static sites that connect via endpoints to a Python backend, which interacts with a MariaDB database. The backend also consumes Cloudflare AI Search via REST API for intelligent retrieval-augmented generation capabilities and manages file storage (specifically vector files for RAG) in a Cloudflare R2 bucket.
 
 ![Technology Stack Diagram](assets/diagrams/diagram1.webp)
-Diagram generated with [diagrams.net](https://app.diagrams.net/).
+*Diagram generated with [diagrams.net](https://app.diagrams.net/).*
 
 
 ### Detailed Overview of technologies
@@ -131,28 +131,62 @@ Diagram generated with [diagrams.net](https://app.diagrams.net/).
 
 ### Backend
 
-- **FastAPI**: Python server framework used to create RESTful API endpoints for communication between the frontend and backend services.
+Python backend with FastAPI providing RESTful API endpoints for authentication, file management, and AI-powered queries.
 
----
+**Core Stack:**
 
-### Frontend admin
+- **FastAPI + Uvicorn**: High-performance async web framework with automatic API documentation
+- **SQLAlchemy 2.0 + aiomysql**: Async ORM for MariaDB operations
+- **Pydantic**: Data validation and settings management
+- **pytest**: Testing framework with async support
 
-Management interface for administering the service, including user management, file uploads to Cloudflare R2, and monitoring AI Search usage.
+**Security & Authentication:**
 
-Login preview:
-![Frontend admin](assets/images/screenshot4.PNG)
+- **Argon2id**: Password hashing resistant to GPU attacks
+- **JWT (python-jose)**: Token-based authentication with HS256 signing
+- **Cloudflare Turnstile**: Bot protection and CAPTCHA verification
 
-Dashboard preview:
-![Frontend admin](assets/images/screenshot5.PNG)
+**Cloud Integration:**
+
+- **Cloudflare AI Search**: REST API integration for retrieval-augmented generation
+- **Cloudflare R2**: S3-compatible file storage using aioboto3
+- **httpx**: Async HTTP client for Cloudflare API calls
+
+**Features:**
+
+- CORS middleware for frontend communication
+- File upload validation (extensions, size limits)
+- Email validation for user registration
+- Automatic API documentation (Swagger/ReDoc)
+- Environment-based configuration (.env.development, .env.production)
 
 ---
 
 ### Frontend public
 
-Public interface for users to interact with the service, submit queries, and receive AI-generated responses based on NASA data.
+**Public domain:** [https://exoplanets.fernandodilland.com/](https://exoplanets.fernandodilland.com/)
+
+Interface for users to interact with the service, submit queries, and receive AI-generated responses based on NASA data.
 
 Home preview:
 ![Frontend public](assets/images/screenshot6.PNG)
+*Image: Own source.*
+
+---
+
+### Frontend admin
+
+**Public domain:** [https://admin-exoplanets.fernandodilland.com/](https://admin-exoplanets.fernandodilland.com/)
+
+Management interface for administering the service, including user management, file uploads to Cloudflare R2, and monitoring AI Search usage.
+
+Login preview:
+![Frontend admin](assets/images/screenshot4.PNG)
+*Image: Own source.*
+
+Dashboard preview:
+![Frontend admin](assets/images/screenshot5.PNG)
+*Image: Own source.*
 
 ---
 
@@ -174,17 +208,21 @@ The `database/` folder contains SQL scripts that must be executed in order:
 
 Preview:
 ![Vectorize screenshot](assets/images/screenshot1.PNG)
+*Image: Own source.*
 
 Vector sample:
 ![Vector sample screenshot](assets/images/screenshot2.PNG)
+*Image: Own source.*
 
 Vector exported as JSON:
 ![Vector exported as JSON screenshot](assets/images/screenshot3.PNG)
+*Image: Own source.*
 
 **Postman collection:** Contains all the backend endpoints for testing purposes.
 
-Postman screenshot:
+Screenshot:
 ![Postman screenshot](assets/images/screenshot7.PNG)
+*Image: Own source.*
 
 ---
 
