@@ -134,6 +134,87 @@
         "panel": "new",
         "group": "frontend"
       }
+    },
+    {
+      "label": "Frontend Admin: Dev Local",
+      "type": "shell",
+      "command": "npx",
+      "args": ["wrangler", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend-admin"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+          "file": 1,
+          "location": 2,
+          "severity": 3,
+          "code": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting.*$",
+          "endsPattern": "^.*Ready on.*$"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "frontend"
+      }
+    },
+    {
+      "label": "Frontend Admin: Deploy",
+      "type": "shell",
+      "command": "npx",
+      "args": ["wrangler", "deploy"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend-admin"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "frontend"
+      }
+    },
+    {
+      "label": "Backend: Setup Environment",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "windows": {
+        "command": "if not exist venv (python -m venv venv) else (echo Virtual environment already exists)"
+      },
+      "linux": {
+        "command": "if [ ! -d venv ]; then python3 -m venv venv; else echo 'Virtual environment already exists'; fi"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "backend"
+      }
+    },
+    {
+      "label": "Backend: Install Requirements",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "windows": {
+        "command": "if not exist venv (python -m venv venv) && venv\\Scripts\\pip install -r requirements.txt"
+      },
+      "linux": {
+        "command": "if [ ! -d venv ]; then python3 -m venv venv; fi && venv/bin/pip install -r requirements.txt"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "group": "backend"
+      },
+      "problemMatcher": []
     }
   ]
 }

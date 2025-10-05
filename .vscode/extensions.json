@@ -1,7 +1,28 @@
 {
   "recommendations": [
+    // Cloudflare Extensions
     "cloudflare.vscode-wrangler",
+    
+    // JavaScript/TypeScript Extensions
     "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    
+    // Python Extensions
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "ms-python.debugpy",
+    
+    // TOML Support
+    "tamasfe.even-better-toml",
+    
+    // Database Extensions (Optional)
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-mysql",
+    
+    // Useful Extensions
+    "aaron-bond.better-comments",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens"
   ]
 }

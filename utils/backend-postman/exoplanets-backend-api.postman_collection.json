@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "Exoplanets RAG - Backend API",
+    "description": "Colección completa para probar todos los endpoints del backend FastAPI de Exoplanets RAG.\n\nRequiere:\n- Backend corriendo en http://localhost:2090\n- Base de datos MariaDB configurada\n- Cloudflare Turnstile token (opcional para desarrollo)\n\nVariables de entorno:\n- {{base_url}}: http://localhost:2090\n- {{token}}: JWT token obtenido del login\n- {{turnstile_token}}: Token de Cloudflare Turnstile (opcional)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "exoplanets-rag"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Guardar token automáticamente después del login exitoso",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"token\", jsonData.access_token);",
+                  "    console.log(\"Token guardado:\", jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": \"admin\",\n  \"password\": \"tu_password_aqui\",\n  \"turnstile_token\": \"{{turnstile_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Endpoint de autenticación. Devuelve un JWT token que se guarda automáticamente en las variables de entorno.\n\n**Nota:** En modo desarrollo, el turnstile_token puede ser cualquier string (ej: \"dev-token\")."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints relacionados con autenticación de usuarios."
+    },
+    {
+      "name": "File Upload",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Archivo a subir (máximo 4MB). Formatos soportados: PDF, TXT, DOCX, MD, CSV, JSON, XML, HTML, etc."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "upload"]
+            },
+            "description": "Sube un archivo al sistema. Requiere autenticación.\n\n**Límites:**\n- Tamaño máximo: 4MB\n- Formatos soportados: PDF, TXT, DOC, DOCX, XLS, XLSX, CSV, JSON, XML, HTML, MD, y más.\n\n**Nota:** Actualmente el código de R2 está comentado (TODO). El archivo se valida y registra en la base de datos, pero no se sube físicamente a R2 hasta que se descomente el código."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para subir archivos al sistema."
+    },
+    {
+      "name": "AI Requests",
+      "item": [
+        {
+          "name": "Submit AI Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"¿Qué es un exoplaneta?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "request"]
+            },
+            "description": "Envía una pregunta al sistema RAG con Cloudflare AI. Requiere autenticación.\n\n**Nota:** Actualmente el código de Cloudflare AI está comentado (TODO). La pregunta se registra en la base de datos pero no se procesa hasta que se descomente el código y se configure el token de API."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para enviar preguntas al sistema RAG con IA."
+    },
+    {
+      "name": "Public - Files",
+      "item": [
+        {
+          "name": "Get All Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/files?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Número de resultados a devolver (por defecto: 100)"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Número de resultados a saltar (por defecto: 0)"
+                }
+              ]
+            },
+            "description": "Lista todos los archivos del sistema con paginación. **No requiere autenticación.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Files Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/files/count",
+              "host": ["{{base_url}}"],
+              "path": ["api", "files", "count"]
+            },
+            "description": "Obtiene el total de archivos en el sistema. **No requiere autenticación.**"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints públicos para consultar archivos (no requieren autenticación)."
+    },
+    {
+      "name": "Public - Results",
+      "item": [
+        {
+          "name": "Get All Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/results?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "results"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Número de resultados a devolver (por defecto: 100)"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Número de resultados a saltar (por defecto: 0)"
+                }
+              ]
+            },
+            "description": "Lista todas las respuestas del sistema IA con paginación. **No requiere autenticación.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Results Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/results/count",
+              "host": ["{{base_url}}"],
+              "path": ["api", "results", "count"]
+            },
+            "description": "Obtiene el total de respuestas en el sistema. **No requiere autenticación.**"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints públicos para consultar resultados de IA (no requieren autenticación)."
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Endpoint raíz del API. Devuelve información básica del servicio."
+          },
+          "response": []
+        },
+        {
+          "name": "API Docs (Swagger)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/docs",
+              "host": ["{{base_url}}"],
+              "path": ["docs"]
+            },
+            "description": "Documentación interactiva Swagger UI (solo disponible en modo desarrollo)."
+          },
+          "response": []
+        },
+        {
+          "name": "API ReDoc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/redoc",
+              "host": ["{{base_url}}"],
+              "path": ["redoc"]
+            },
+            "description": "Documentación alternativa ReDoc (solo disponible en modo desarrollo)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para verificar el estado del API."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script que se ejecuta antes de cada request",
+          "console.log(\"Ejecutando request a:\", pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script que se ejecuta después de cada request",
+          "console.log(\"Status:\", pm.response.code);",
+          "console.log(\"Tiempo:\", pm.response.responseTime, \"ms\");"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:2090",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "turnstile_token",
+      "value": "dev-token",
+      "type": "string"
+    }
+  ]
+}

@@ -3,12 +3,19 @@
     "**/node_modules": true,
     "**/.git": true,
     "**/dist": true,
-    "**/.wrangler": true
+    "**/.wrangler": true,
+    "**/backend/venv": true,
+    "**/backend/__pycache__": true,
+    "**/backend/.pytest_cache": true,
+    "**/backend/**/*.pyc": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
-    "**/.wrangler": true
+    "**/.wrangler": true,
+    "**/backend/venv": true,
+    "**/backend/__pycache__": true,
+    "**/backend/.pytest_cache": true
   },
   "typescript.tsdk": "utils/vectorize-inspector/node_modules/typescript/lib",
   "editor.formatOnSave": false,
@@ -21,8 +28,54 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
   "files.associations": {
     "*.toml": "toml",
     "wrangler.toml": "toml"
-  }
+  },
+  
+  // Python Configuration
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  
+  // Python Linting
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+    "--max-line-length=120",
+    "--ignore=E501,W503"
+  ],
+  
+  // Python Formatting
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": [
+    "--line-length=120"
+  ],
+  
+  // Python Testing
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "backend/tests",
+    "-v"
+  ],
+  "python.testing.unittestEnabled": false,
+  
+  // Python Environment
+  "python.envFile": "${workspaceFolder}/backend/.env.development",
+  
+  // Python IntelliSense
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend"
+  ]
 }

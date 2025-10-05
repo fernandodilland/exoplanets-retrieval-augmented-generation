@@ -1,0 +1,36 @@
+# Core FastAPI dependencies
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# Database
+aiomysql==0.2.0
+sqlalchemy==2.0.35
+greenlet==3.1.1  # Required for SQLAlchemy async operations
+# asyncmy==0.2.9  # Comentado - requiere Visual C++ Build Tools
+
+# Authentication
+argon2-cffi==23.1.0
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.12
+
+# Environment variables
+python-dotenv==1.0.1
+
+# HTTP client for Cloudflare APIs
+httpx==0.27.2
+
+# AWS SDK for R2 (S3-compatible)
+aioboto3==13.2.0
+
+# CORS
+fastapi-cors==0.0.6
+
+# Validation
+pydantic==2.9.2
+pydantic-settings==2.5.2
+email-validator==2.2.0
+
+# Testing
+pytest==8.3.3
+pytest-asyncio==0.24.0
+httpx==0.27.2

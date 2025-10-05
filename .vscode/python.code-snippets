@@ -1,0 +1,197 @@
+{
+  "FastAPI Router": {
+    "prefix": "fastapi-router",
+    "body": [
+      "\"\"\"",
+      "${1:Description} endpoints.",
+      "\"\"\"",
+      "from fastapi import APIRouter, Depends, HTTPException, status",
+      "from sqlalchemy.ext.asyncio import AsyncSession",
+      "",
+      "from app.database import get_db",
+      "from app.models import ${2:Model}",
+      "from app.schemas import ${3:Schema}",
+      "",
+      "router = APIRouter(prefix=\"/api\", tags=[\"${4:Tag}\"])",
+      "",
+      "",
+      "@router.get(\"/${5:endpoint}\")",
+      "async def ${6:function_name}(",
+      "    db: AsyncSession = Depends(get_db)",
+      "):",
+      "    \"\"\"${7:Description}\"\"\"",
+      "    ${0:pass}",
+      ""
+    ],
+    "description": "Create FastAPI router template"
+  },
+  "FastAPI Endpoint": {
+    "prefix": "fastapi-endpoint",
+    "body": [
+      "@router.${1|get,post,put,delete,patch|}(\"/${2:path}\", response_model=${3:ResponseSchema})",
+      "async def ${4:function_name}(",
+      "    ${5:param}: ${6:Type},",
+      "    db: AsyncSession = Depends(get_db)",
+      "):",
+      "    \"\"\"",
+      "    ${7:Description}",
+      "    ",
+      "    Args:",
+      "        ${5:param}: ${8:Param description}",
+      "        db: Database session",
+      "        ",
+      "    Returns:",
+      "        ${9:Return description}",
+      "        ",
+      "    Raises:",
+      "        HTTPException: ${10:Exception description}",
+      "    \"\"\"",
+      "    ${0:pass}",
+      ""
+    ],
+    "description": "Create FastAPI endpoint"
+  },
+  "Pydantic Schema": {
+    "prefix": "pydantic-schema",
+    "body": [
+      "class ${1:SchemaName}(BaseModel):",
+      "    \"\"\"${2:Schema description}\"\"\"",
+      "    model_config = ConfigDict(from_attributes=True)",
+      "    ",
+      "    ${3:field_name}: ${4:str}",
+      "    ${0}",
+      ""
+    ],
+    "description": "Create Pydantic schema"
+  },
+  "SQLAlchemy Model": {
+    "prefix": "sqlalchemy-model",
+    "body": [
+      "class ${1:ModelName}(Base):",
+      "    \"\"\"${2:Model description}\"\"\"",
+      "    __tablename__ = \"${3:table_name}\"",
+      "    ",
+      "    id = Column(Integer, primary_key=True, autoincrement=True)",
+      "    uid = Column(String(36), unique=True, nullable=False, server_default=func.uuid())",
+      "    ${4:field_name} = Column(${5|String,Integer,Text,TIMESTAMP,Boolean|}(${6:length}), nullable=${7|False,True|})",
+      "    created_at = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())",
+      "    ",
+      "    # Relationships",
+      "    ${0}",
+      ""
+    ],
+    "description": "Create SQLAlchemy model"
+  },
+  "Async Database Query": {
+    "prefix": "db-query",
+    "body": [
+      "result = await db.execute(",
+      "    select(${1:Model})",
+      "    .where(${1:Model}.${2:field} == ${3:value})",
+      ")",
+      "${4:items} = result.scalars().${5|all,first,one,one_or_none|}()",
+      "${0}"
+    ],
+    "description": "Async database query template"
+  },
+  "FastAPI Dependency": {
+    "prefix": "fastapi-dependency",
+    "body": [
+      "async def ${1:dependency_name}(",
+      "    ${2:param}: ${3:Type} = ${4:Depends(get_db)}",
+      ") -> ${5:ReturnType}:",
+      "    \"\"\"",
+      "    ${6:Description}",
+      "    ",
+      "    Args:",
+      "        ${2:param}: ${7:Param description}",
+      "        ",
+      "    Returns:",
+      "        ${8:Return description}",
+      "        ",
+      "    Raises:",
+      "        HTTPException: ${9:Exception description}",
+      "    \"\"\"",
+      "    ${0:pass}",
+      ""
+    ],
+    "description": "Create FastAPI dependency"
+  },
+  "HTTP Exception": {
+    "prefix": "http-exception",
+    "body": [
+      "raise HTTPException(",
+      "    status_code=status.HTTP_${1|400_BAD_REQUEST,401_UNAUTHORIZED,403_FORBIDDEN,404_NOT_FOUND,500_INTERNAL_SERVER_ERROR|},",
+      "    detail=\"${2:Error message}\"",
+      ")"
+    ],
+    "description": "Raise HTTP exception"
+  },
+  "Async Function": {
+    "prefix": "async-function",
+    "body": [
+      "async def ${1:function_name}(${2:params}) -> ${3:ReturnType}:",
+      "    \"\"\"",
+      "    ${4:Description}",
+      "    ",
+      "    Args:",
+      "        ${5:param}: ${6:Description}",
+      "        ",
+      "    Returns:",
+      "        ${7:Description}",
+      "    \"\"\"",
+      "    ${0:pass}",
+      ""
+    ],
+    "description": "Create async function"
+  },
+  "Try Except Block": {
+    "prefix": "try-except",
+    "body": [
+      "try:",
+      "    ${1:# code}",
+      "except ${2:Exception} as e:",
+      "    ${3:# handle exception}",
+      "    raise HTTPException(",
+      "        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,",
+      "        detail=f\"${4:Error}: {str(e)}\"",
+      "    )",
+      "${0}"
+    ],
+    "description": "Try except block with HTTP exception"
+  },
+  "Pytest Test Function": {
+    "prefix": "pytest-test",
+    "body": [
+      "@pytest.mark.asyncio",
+      "async def test_${1:function_name}(${2:fixtures}):",
+      "    \"\"\"Test ${3:description}.\"\"\"",
+      "    # Arrange",
+      "    ${4:setup}",
+      "    ",
+      "    # Act",
+      "    ${5:action}",
+      "    ",
+      "    # Assert",
+      "    assert ${6:condition}",
+      "    ${0}",
+      ""
+    ],
+    "description": "Create pytest test function"
+  },
+  "FastAPI Response Model": {
+    "prefix": "response-model",
+    "body": [
+      "class ${1:ResponseName}(BaseModel):",
+      "    \"\"\"${2:Response description}\"\"\"",
+      "    model_config = ConfigDict(from_attributes=True)",
+      "    ",
+      "    success: bool = True",
+      "    message: str",
+      "    data: Optional[${3:DataType}] = None",
+      "    ${0}",
+      ""
+    ],
+    "description": "Create response model"
+  }
+}

@@ -33,6 +33,48 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "outputCapture": "std"
+    },
+    {
+      "name": "frontend - admin (local)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend-admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "outputCapture": "std"
+    },
+    {
+      "name": "frontend - admin (deploy)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend-admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "deploy"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "outputCapture": "std"
+    },
+    {
+      "name": "backend - Development",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "2090",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "ENVIRONMENT": "development"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": false
     }
   ]
 }
