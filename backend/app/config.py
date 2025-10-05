@@ -3,8 +3,9 @@ Configuration module for environment variables and application settings.
 """
 import os
 from typing import List
-from pydantic_settings import BaseSettings
+
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 # Load environment variables
 env = os.getenv("ENVIRONMENT", "development")
@@ -82,8 +83,16 @@ class Settings(BaseSettings):
     
     @property
     def cors_origins(self) -> List[str]:
-        """Get CORS origins as list"""
-        return [origin.strip() for origin in self.cors_origins_str.split(",")]
+        """Get CORS origins as list - includes both with and without trailing slash"""
+        origins = []
+        for origin in self.cors_origins_str.split(","):
+            origin = origin.strip()
+            if origin:
+                # Add both versions (with and without trailing slash)
+                origins.append(origin.rstrip('/'))
+                if not origin.endswith('/'):
+                    origins.append(origin + '/')
+        return origins
     
     @property
     def is_development(self) -> bool:

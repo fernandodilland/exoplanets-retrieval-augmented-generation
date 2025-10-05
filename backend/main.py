@@ -2,13 +2,14 @@
 FastAPI application entry point.
 """
 from contextlib import asynccontextmanager
+
+from app.config import settings
+from app.database import close_db, init_db
+from app.routers import auth, files, request, results, upload
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-from app.config import settings
-from app.database import init_db, close_db
-from app.routers import auth, upload, request, files, results
+from sqlalchemy import select, text
 
 
 @asynccontextmanager
@@ -20,6 +21,17 @@ async def lifespan(app: FastAPI):
     print("🚀 Starting Exoplanets RAG API...")
     print(f"📌 Environment: {settings.environment}")
     print(f"📌 Database: {settings.db_host}:{settings.db_port}/{settings.db_name}")
+    print(f"📌 CORS Origins: {settings.cors_origins}")
+    
+    # Test database connection
+    try:
+        from app.database import engine
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        print("✅ Database connection successful!")
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        print("⚠️  API will start but database operations will fail")
     
     # Initialize database (optional - tables should already exist)
     # await init_db()
@@ -48,6 +60,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -82,17 +95,35 @@ app.include_router(results.router)
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """Global exception handler"""
+    import traceback
+
+    # Log the error
+    print(f"❌ Error: {type(exc).__name__}: {str(exc)}")
+    print(traceback.format_exc())
+    
+    # Prepare response with CORS headers
+    headers = {}
+    origin = request.headers.get("origin")
+    if origin:
+        # Allow the origin if it's in the allowed list
+        allowed = settings.cors_origins if not settings.is_development else ["*"]
+        if "*" in allowed or origin in allowed or any(origin.rstrip('/') == o.rstrip('/') for o in allowed):
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = "true"
+    
     if settings.is_development:
         # Show detailed error in development
         return JSONResponse(
             status_code=500,
-            content={"detail": str(exc), "type": type(exc).__name__}
+            content={"detail": str(exc), "type": type(exc).__name__},
+            headers=headers
         )
     else:
         # Generic error in production
         return JSONResponse(
             status_code=500,
-            content={"detail": "Internal server error"}
+            content={"detail": "Internal server error"},
+            headers=headers
         )
 
 

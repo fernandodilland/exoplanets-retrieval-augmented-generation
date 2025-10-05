@@ -5,7 +5,7 @@
  */
 
 // API Base URL - Change this to your production URL when deploying
-const API_BASE_URL = 'http://localhost:2090';
+const API_BASE_URL = 'https://api-exoplanets.fernandodilland.com';
 
 // API Endpoints
 const API_ENDPOINTS = {
