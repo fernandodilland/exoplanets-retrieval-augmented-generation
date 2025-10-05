@@ -83,6 +83,29 @@
                 </div>
             </div>
             
+            <!-- File Preview Area (initially hidden) -->
+            <div id="filePreview" class="hidden mt-4">
+                <div class="bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-4">
+                    <h3 class="text-base font-semibold text-white mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Selected Files
+                    </h3>
+                    <div id="fileList" class="space-y-2 mb-4">
+                        <!-- File items will be added here dynamically -->
+                    </div>
+                    <button id="submitUpload"
+                            style="background-color: #e7f434;"
+                            class="w-full px-5 py-3 hover:opacity-90 text-gray-900 font-bold text-base rounded-lg transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <span>Upload to R2 Bucket</span>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Supported Formats -->
             <div class="mt-6">
                 <h3 class="text-lg font-semibold text-white mb-3">Supported File Formats:</h3>
@@ -201,26 +224,27 @@
                 </div>
             </div>
             
-            <!-- File Preview Area (initially hidden) -->
-            <div id="filePreview" class="hidden mt-4">
-                <div class="bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-4">
-                    <h3 class="text-base font-semibold text-white mb-3 flex items-center">
+            <!-- Uploaded Training Files Section -->
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-white flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                         </svg>
-                        Selected Files
+                        Uploaded Training Files
                     </h3>
-                    <div id="fileList" class="space-y-2 mb-4">
-                        <!-- File items will be added here dynamically -->
+                    <span id="filesCount" class="text-xs text-white bg-white bg-opacity-20 px-2 py-1 rounded-full">
+                        Loading...
+                    </span>
+                </div>
+                
+                <!-- Files List Container -->
+                <div id="uploadedFilesList" class="space-y-2 max-h-96 overflow-y-auto">
+                    <!-- Loading animation -->
+                    <div class="flex justify-center items-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                     </div>
-                    <button id="submitUpload"
-                            style="background-color: #e7f434;"
-                            class="w-full px-5 py-3 hover:opacity-90 text-gray-900 font-bold text-base rounded-lg transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <span>Upload to R2 Bucket</span>
-                    </button>
+                    <p class="text-center text-white text-sm">Loading training files...</p>
                 </div>
             </div>
             </section>
@@ -243,18 +267,6 @@
             
             <!-- Input Form -->
             <div class="space-y-4">
-                <!-- Main Query -->
-                <div>
-                    <label for="exoplanetPrompt" class="block text-sm font-medium text-white mb-2">
-                        Exoplanet Characteristics
-                    </label>
-                    <textarea 
-                        id="exoplanetPrompt" 
-                        rows="4" 
-                        class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        placeholder="Example: Analyze an exoplanet with a radius 1.2 times that of Earth, located in the habitable zone of a G-type star..."></textarea>
-                </div>
-
                 <!-- Configuration Parameters -->
                 <div class="bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg p-4">
                     <h3 class="text-base font-semibold text-white mb-3 flex items-center">
@@ -396,6 +408,18 @@
                             </label>
                         </div>
                     </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div>
+                    <label for="exoplanetPrompt" class="block text-sm font-medium text-white mb-2">
+                        Additional Details
+                    </label>
+                    <textarea 
+                        id="exoplanetPrompt" 
+                        rows="4" 
+                        class="w-full px-3 py-2 bg-white border border-white rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                        placeholder="Example: Analyze an exoplanet with a radius 1.2 times that of Earth, located in the habitable zone of a G-type star..."></textarea>
                 </div>
                 
                 <button 

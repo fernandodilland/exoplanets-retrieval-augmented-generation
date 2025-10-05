@@ -515,6 +515,15 @@ document.addEventListener('DOMContentLoaded', function() {
             filePreview.classList.add('hidden');
             fileInput.value = '';
         }
+        
+        // Refresh uploaded files list after successful uploads
+        if (successCount > 0) {
+            setTimeout(() => {
+                if (typeof loadUploadedFiles === 'function') {
+                    loadUploadedFiles();
+                }
+            }, 1000);
+        }
     });
     
     // ===== EXOPLANET ANALYSIS FUNCTIONALITY =====
@@ -588,5 +597,160 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 3000);
     }
+    
+    // ===== UPLOADED FILES LIST FUNCTIONALITY =====
+    
+    // Get file extension
+    function getFileExtension(filename) {
+        return filename.split('.').pop().toLowerCase();
+    }
+    
+    // Get file style based on extension
+    function getFileStyle(filename) {
+        const ext = getFileExtension(filename);
+        
+        const styles = {
+            // Documents
+            'pdf': { gradient: 'from-red-50 to-pink-50', border: 'border-red-200', icon: 'text-red-600' },
+            'doc': { gradient: 'from-blue-50 to-indigo-50', border: 'border-blue-200', icon: 'text-blue-600' },
+            'docx': { gradient: 'from-blue-50 to-indigo-50', border: 'border-blue-200', icon: 'text-blue-600' },
+            'odt': { gradient: 'from-blue-50 to-indigo-50', border: 'border-blue-200', icon: 'text-blue-600' },
+            
+            // Spreadsheets
+            'csv': { gradient: 'from-green-50 to-emerald-50', border: 'border-green-200', icon: 'text-green-600' },
+            'xlsx': { gradient: 'from-emerald-50 to-teal-50', border: 'border-emerald-200', icon: 'text-emerald-600' },
+            'xls': { gradient: 'from-emerald-50 to-teal-50', border: 'border-emerald-200', icon: 'text-emerald-600' },
+            'ods': { gradient: 'from-emerald-50 to-teal-50', border: 'border-emerald-200', icon: 'text-emerald-600' },
+            
+            // Data
+            'json': { gradient: 'from-yellow-50 to-amber-50', border: 'border-yellow-200', icon: 'text-amber-600' },
+            'xml': { gradient: 'from-orange-50 to-amber-50', border: 'border-orange-200', icon: 'text-orange-600' },
+            
+            // Text
+            'txt': { gradient: 'from-gray-50 to-slate-50', border: 'border-gray-200', icon: 'text-gray-600' },
+            'md': { gradient: 'from-purple-50 to-indigo-50', border: 'border-purple-200', icon: 'text-purple-600' },
+            
+            // Default
+            'default': { gradient: 'from-gray-50 to-slate-50', border: 'border-gray-200', icon: 'text-gray-600' }
+        };
+        
+        return styles[ext] || styles['default'];
+    }
+    
+    // Show loading animation for uploaded files
+    function showUploadedFilesLoading() {
+        const container = document.getElementById('uploadedFilesList');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+            <p class="text-center text-white text-sm">Loading training files...</p>
+        `;
+    }
+    
+    // Load uploaded files from API
+    async function loadUploadedFiles() {
+        try {
+            showUploadedFilesLoading();
+            
+            // Get files count and first page
+            const [countResult, filesResult] = await Promise.all([
+                getFilesCount(),
+                getFiles(1, 10) // Show first 10 files
+            ]);
+            
+            // Update files count
+            const filesCountElement = document.getElementById('filesCount');
+            if (filesCountElement && countResult.success) {
+                filesCountElement.textContent = `${countResult.data.count} file${countResult.data.count !== 1 ? 's' : ''}`;
+            }
+            
+            if (filesResult.success && filesResult.data.length > 0) {
+                displayUploadedFiles(filesResult.data);
+            } else if (filesResult.success && filesResult.data.length === 0) {
+                displayNoUploadedFiles();
+            } else {
+                console.error('Failed to load uploaded files:', filesResult.error);
+                displayUploadedFilesError(filesResult.error);
+            }
+        } catch (error) {
+            console.error('Error loading uploaded files:', error);
+            displayUploadedFilesError(error.message);
+        }
+    }
+    
+    // Display uploaded files in the UI
+    function displayUploadedFiles(files) {
+        const container = document.getElementById('uploadedFilesList');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        files.forEach(file => {
+            const style = getFileStyle(file.absolute_path);
+            const fileItem = document.createElement('a');
+            fileItem.href = file.url || '#';
+            fileItem.target = '_blank';
+            fileItem.className = `block p-3 bg-gradient-to-r ${style.gradient} hover:shadow-md rounded-lg transition duration-300 group ${style.border}`;
+            
+            fileItem.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2 flex-1 min-w-0">
+                        <svg class="w-5 h-5 ${style.icon} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900 font-medium truncate">${escapeHtml(file.absolute_path)}</span>
+                    </div>
+                    <span class="text-xs text-gray-600 font-semibold ml-2 flex-shrink-0">${new Date(file.created_at).toLocaleDateString()}</span>
+                </div>
+            `;
+            
+            container.appendChild(fileItem);
+        });
+    }
+    
+    // Display "no files" message
+    function displayNoUploadedFiles() {
+        const container = document.getElementById('uploadedFilesList');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="text-center py-6 text-white">
+                <svg class="w-12 h-12 mx-auto mb-3 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-sm">No training files uploaded yet</p>
+            </div>
+        `;
+    }
+    
+    // Display uploaded files error
+    function displayUploadedFilesError(error) {
+        const container = document.getElementById('uploadedFilesList');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="text-center py-6 text-white">
+                <svg class="w-12 h-12 mx-auto mb-3 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-sm">Failed to load files</p>
+            </div>
+        `;
+    }
+    
+    // Load uploaded files on page load
+    loadUploadedFiles();
+    
+    // Refresh uploaded files every 15 seconds
+    setInterval(() => {
+        loadUploadedFiles();
+    }, 15000);
+    
+    // Refresh uploaded files after successful upload
+    // This needs to be added to the upload success handler
+    const originalSubmitUpload = submitUpload.addEventListener;
     
 });

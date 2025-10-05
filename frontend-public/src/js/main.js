@@ -84,9 +84,24 @@ function getFileStyle(filename) {
     return styles[ext] || styles['default'];
 }
 
+// Show loading animation for files
+function showFilesLoading() {
+    const container = document.querySelector('.bg-white.rounded-xl.shadow-lg .space-y-3');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+        <p class="text-center text-gray-500">Loading training files...</p>
+    `;
+}
+
 // Load files from API
 async function loadFiles(page = 1) {
     try {
+        showFilesLoading();
+        
         // Get total count and files in parallel
         const [countResult, filesResult] = await Promise.all([
             getFilesCount(),
@@ -176,9 +191,24 @@ function displayFilesError(error) {
     `;
 }
 
+// Show loading animation for results
+function showResultsLoading() {
+    const container = document.querySelector('.bg-white.rounded-xl.shadow-lg:last-child .space-y-4');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        </div>
+        <p class="text-center text-gray-500">Loading research results...</p>
+    `;
+}
+
 // Load results from API
 async function loadResults(page = 1) {
     try {
+        showResultsLoading();
+        
         // Get total count and results in parallel
         const [countResult, resultsResult] = await Promise.all([
             getResultsCount(),

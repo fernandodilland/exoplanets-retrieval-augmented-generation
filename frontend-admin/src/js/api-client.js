@@ -177,18 +177,18 @@ async function sendAIRequest(question) {
 }
 
 /**
- * Get all files from the API
+ * Get paginated list of files from the API
+ * @param {number} page - Page number (1-indexed)
+ * @param {number} pageSize - Items per page
  * @returns {Promise<object>} Files list
  */
-async function getFiles() {
+async function getFiles(page = 1, pageSize = 20) {
     try {
-        const headers = {
-            ...getAuthHeaders()
-        };
+        // Note: Admin can access public endpoint without auth
+        const url = `${getApiUrl('FILES')}?page=${page}&page_size=${pageSize}`;
         
-        const response = await fetch(getApiUrl('FILES'), {
-            method: 'GET',
-            headers: headers
+        const response = await fetch(url, {
+            method: 'GET'
         });
         
         if (!response.ok) {
@@ -211,18 +211,50 @@ async function getFiles() {
 }
 
 /**
- * Get all AI results from the API
+ * Get total count of files
+ * @returns {Promise<object>} Files count
+ */
+async function getFilesCount() {
+    try {
+        // Note: Admin can access public endpoint without auth
+        const url = `${getApiUrl('FILES')}/count`;
+        
+        const response = await fetch(url, {
+            method: 'GET'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || `Failed to fetch files count: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return {
+            success: true,
+            data: data
+        };
+    } catch (error) {
+        console.error('Get files count error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+/**
+ * Get paginated list of AI results from the API
+ * @param {number} page - Page number (1-indexed)
+ * @param {number} pageSize - Items per page
  * @returns {Promise<object>} Results list
  */
-async function getResults() {
+async function getResults(page = 1, pageSize = 20) {
     try {
-        const headers = {
-            ...getAuthHeaders()
-        };
+        // Note: Admin can access public endpoint without auth
+        const url = `${getApiUrl('RESULTS')}?page=${page}&page_size=${pageSize}`;
         
-        const response = await fetch(getApiUrl('RESULTS'), {
-            method: 'GET',
-            headers: headers
+        const response = await fetch(url, {
+            method: 'GET'
         });
         
         if (!response.ok) {
@@ -237,6 +269,38 @@ async function getResults() {
         };
     } catch (error) {
         console.error('Get results error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+/**
+ * Get total count of AI results
+ * @returns {Promise<object>} Results count
+ */
+async function getResultsCount() {
+    try {
+        // Note: Admin can access public endpoint without auth
+        const url = `${getApiUrl('RESULTS')}/count`;
+        
+        const response = await fetch(url, {
+            method: 'GET'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || `Failed to fetch results count: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return {
+            success: true,
+            data: data
+        };
+    } catch (error) {
+        console.error('Get results count error:', error);
         return {
             success: false,
             error: error.message
@@ -279,7 +343,9 @@ if (typeof module !== 'undefined' && module.exports) {
         uploadFile,
         sendAIRequest,
         getFiles,
+        getFilesCount,
         getResults,
+        getResultsCount,
         checkHealth
     };
 }
