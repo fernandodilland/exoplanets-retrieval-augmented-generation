@@ -11,6 +11,229 @@ function logout() {
     }
 }
 
+// ===== GLOBAL REQUEST ANALYSIS FUNCTION =====
+async function requestAnalysis() {
+    // Get form values
+    const prompt = document.getElementById('exoplanetPrompt')?.value?.trim();
+    const maxResults = document.getElementById('maxResults')?.value;
+    const scoreThreshold = document.getElementById('scoreThreshold')?.value;
+    const planetRadius = document.getElementById('planetRadius')?.value;
+    const planetMass = document.getElementById('planetMass')?.value;
+    const orbitalPeriod = document.getElementById('orbitalPeriod')?.value;
+    const distance = document.getElementById('distance')?.value;
+    const starType = document.getElementById('starType')?.value;
+    const habitableZone = document.getElementById('habitableZone')?.checked;
+    
+    // Validate main prompt
+    if (!prompt && !planetRadius && !planetMass && !orbitalPeriod) {
+        showNotification('Please provide either a description or at least one parameter', 'error');
+        return;
+    }
+    
+    // Build structured analysis configuration in JSON format (in English)
+    const analysisConfig = {
+        max_results: maxResults ? parseInt(maxResults) : 10,
+        score_threshold: scoreThreshold ? parseFloat(scoreThreshold) : 0.4
+    };
+    
+    // Build parameters object
+    const parameters = {};
+    if (planetRadius) parameters.radius_earth = parseFloat(planetRadius);
+    if (planetMass) parameters.mass_earth = parseFloat(planetMass);
+    if (orbitalPeriod) parameters.orbital_period_days = parseFloat(orbitalPeriod);
+    if (distance) parameters.distance_light_years = parseFloat(distance);
+    if (starType) parameters.star_type = starType;
+    if (habitableZone) parameters.in_habitable_zone = true;
+    
+    // Build the complete query in English
+    let fullQuery = '';
+    
+    // Add user's description if provided
+    if (prompt) {
+        fullQuery += prompt + '\n\n';
+    }
+    
+    // Add structured parameters
+    if (Object.keys(parameters).length > 0) {
+        fullQuery += 'Analysis Parameters:\n';
+        fullQuery += JSON.stringify(parameters, null, 2) + '\n\n';
+    }
+    
+    // Add configuration
+    fullQuery += 'Configuration:\n';
+    fullQuery += JSON.stringify(analysisConfig, null, 2) + '\n\n';
+    
+    // Add instruction for probability
+    fullQuery += 'Please analyze if this celestial body is likely an exoplanet and provide a probability percentage (0-100).';
+    
+    console.log('Sending analysis request:', fullQuery);
+    
+    // Show loading state
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsContent = document.getElementById('resultsContent');
+    
+    if (resultsArea && resultsContent) {
+        resultsArea.classList.remove('hidden');
+        resultsContent.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <svg class="animate-spin h-8 w-8 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-700 font-semibold">Analyzing exoplanet data...</span>
+            </div>
+        `;
+    }
+    
+    try {
+        // Send request to API
+        const result = await sendAIRequest(fullQuery);
+        
+        if (result.success) {
+            displayAnalysisResult(result.data);
+            showNotification('Analysis completed successfully', 'success');
+        } else {
+            showNotification(result.error || 'Failed to analyze', 'error');
+            if (resultsContent) {
+                resultsContent.innerHTML = `
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
+                        <p class="text-red-700">${escapeHtml(result.error || 'Unknown error')}</p>
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Analysis error:', error);
+        showNotification('An unexpected error occurred', 'error');
+        if (resultsContent) {
+            resultsContent.innerHTML = `
+                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
+                    <p class="text-red-700">${escapeHtml(error.message || 'Unknown error')}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Display analysis result with probability
+function displayAnalysisResult(data) {
+    console.log('Displaying analysis result:', data);
+    
+    const resultsContent = document.getElementById('resultsContent');
+    if (!resultsContent) {
+        console.error('Results content element not found');
+        return;
+    }
+    
+    const probability = data.probability_percentage;
+    const hasProbability = probability !== null && probability !== undefined;
+    
+    console.log('Probability:', probability, 'Has probability:', hasProbability);
+    
+    // Determine color and status based on probability - using inline styles for dynamic colors
+    let barColor = '#6B7280'; // gray-500
+    let bgColor = '#F9FAFB'; // gray-50
+    let borderColor = '#E5E7EB'; // gray-200
+    let textColor = '#111827'; // gray-900
+    let statusText = 'Analysis Complete';
+    let statusIcon = '📊';
+    
+    if (hasProbability) {
+        if (probability >= 80) {
+            barColor = '#10B981'; // green-500
+            bgColor = '#ECFDF5'; // green-50
+            borderColor = '#A7F3D0'; // green-200
+            textColor = '#065F46'; // green-900
+            statusText = 'Highly Likely Exoplanet';
+            statusIcon = '✅';
+        } else if (probability >= 60) {
+            barColor = '#3B82F6'; // blue-500
+            bgColor = '#EFF6FF'; // blue-50
+            borderColor = '#BFDBFE'; // blue-200
+            textColor = '#1E3A8A'; // blue-900
+            statusText = 'Likely Exoplanet';
+            statusIcon = '✓';
+        } else if (probability >= 40) {
+            barColor = '#F59E0B'; // yellow-500
+            bgColor = '#FFFBEB'; // yellow-50
+            borderColor = '#FDE68A'; // yellow-200
+            textColor = '#78350F'; // yellow-900
+            statusText = 'Uncertain';
+            statusIcon = '⚠️';
+        } else if (probability >= 20) {
+            barColor = '#F97316'; // orange-500
+            bgColor = '#FFF7ED'; // orange-50
+            borderColor = '#FED7AA'; // orange-200
+            textColor = '#7C2D12'; // orange-900
+            statusText = 'Unlikely Exoplanet';
+            statusIcon = '⚠';
+        } else {
+            barColor = '#EF4444'; // red-500
+            bgColor = '#FEF2F2'; // red-50
+            borderColor = '#FECACA'; // red-200
+            textColor = '#7F1D1D'; // red-900
+            statusText = 'Not an Exoplanet';
+            statusIcon = '❌';
+        }
+    }
+    
+    let html = '';
+    
+    // Show probability if available
+    if (hasProbability) {
+        html += `
+            <div class="mb-6 p-6 rounded-lg border" style="background-color: ${bgColor}; border-color: ${borderColor};">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-2xl font-bold" style="color: ${textColor};">
+                        ${statusIcon} ${statusText}
+                    </h4>
+                    <span class="text-4xl font-bold" style="color: ${textColor};">${probability}%</span>
+                </div>
+                
+                <!-- Probability Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                    <div class="h-6 rounded-full transition-all duration-500 flex items-center justify-center text-white text-xs font-bold"
+                         style="width: ${probability}%; background-color: ${barColor};">
+                        ${probability >= 10 ? probability + '%' : ''}
+                    </div>
+                </div>
+                
+                <p class="text-sm mt-3 font-semibold" style="color: ${textColor};">
+                    Probability that this celestial body is an exoplanet
+                </p>
+            </div>
+        `;
+    }
+    
+    // Show query
+    html += `
+        <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <p class="font-semibold text-purple-900 mb-2">📊 Query:</p>
+            <p class="text-gray-700 whitespace-pre-wrap">${escapeHtml(data.question)}</p>
+        </div>
+    `;
+    
+    // Show AI response
+    html += `
+        <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="font-semibold text-blue-900 mb-2">🤖 AI Analysis:</p>
+            <div class="text-gray-700 whitespace-pre-wrap">${escapeHtml(data.response)}</div>
+        </div>
+    `;
+    
+    // Show timestamp
+    html += `
+        <div class="text-sm text-gray-600">
+            <p>📅 Generated at: ${new Date(data.created_at).toLocaleString()}</p>
+        </div>
+    `;
+    
+    resultsContent.innerHTML = html;
+    console.log('Analysis result displayed successfully');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     
     // ===== AUTHENTICATION CHECK =====
@@ -196,107 +419,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // ===== EXOPLANET ANALYSIS FUNCTIONALITY =====
+    // Note: Analysis functionality is now handled by the global requestAnalysis() function
+    // which is called via onclick="requestAnalysis()" in the HTML
+    
+    /* Old code - replaced by requestAnalysis()
     const exoplanetQuery = document.getElementById('exoplanetQuery');
     const requestAnalysisBtn = document.getElementById('requestAnalysisBtn');
     const clearQueryBtn = document.getElementById('clearQueryBtn');
     const analysisResponse = document.getElementById('analysisResponse');
     const responseContent = document.getElementById('responseContent');
     
-    requestAnalysisBtn.addEventListener('click', async function() {
-        const query = exoplanetQuery.value.trim();
-        
-        if (!query) {
-            showNotification('Please enter a query', 'error');
-            return;
-        }
-        
-        // Show loading state
-        const originalText = this.innerHTML;
-        this.disabled = true;
-        this.innerHTML = `
-            <svg class="animate-spin h-6 w-6 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Processing...</span>
-        `;
-        
-        try {
-            console.log('Requesting AI analysis for:', query);
-            const startTime = Date.now();
-            
-            // Send AI request
-            const result = await sendAIRequest(query);
-            
-            const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
-            
-            // Restore button state
-            this.disabled = false;
-            this.innerHTML = originalText;
-            
-            if (result.success) {
-                // Show response
-                analysisResponse.classList.remove('hidden');
-                analysisResponse.classList.add('success-pulse');
-                
-                const aiResponse = result.data;
-                
-                responseContent.innerHTML = `
-                    <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                        <p class="font-semibold text-purple-900 mb-2">📊 Query:</p>
-                        <p class="text-gray-700">${escapeHtml(aiResponse.question)}</p>
-                    </div>
-                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p class="font-semibold text-blue-900 mb-2">🤖 AI Response:</p>
-                        <div class="text-gray-700 whitespace-pre-wrap">${escapeHtml(aiResponse.response)}</div>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <p>⏱️ Processing time: ${processingTime} seconds</p>
-                        <p>📅 Generated at: ${new Date(aiResponse.created_at).toLocaleString()}</p>
-                    </div>
-                `;
-                
-                setTimeout(() => {
-                    analysisResponse.classList.remove('success-pulse');
-                }, 500);
-                
-                showNotification('AI analysis completed successfully', 'success');
-            } else {
-                // Show error
-                showNotification(result.error || 'Failed to get AI response', 'error');
-                
-                analysisResponse.classList.remove('hidden');
-                responseContent.innerHTML = `
-                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
-                        <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
-                        <p class="text-red-700">${escapeHtml(result.error || 'Unknown error occurred')}</p>
-                    </div>
-                `;
-            }
-        } catch (error) {
-            console.error('AI request error:', error);
-            
-            // Restore button state
-            this.disabled = false;
-            this.innerHTML = originalText;
-            
-            showNotification('An unexpected error occurred', 'error');
-            
-            analysisResponse.classList.remove('hidden');
-            responseContent.innerHTML = `
-                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p class="font-semibold text-red-900 mb-2">❌ Error:</p>
-                    <p class="text-red-700">${escapeHtml(error.message || 'Unknown error')}</p>
-                </div>
-            `;
-        }
-    });
-    
-    clearQueryBtn.addEventListener('click', function() {
-        exoplanetQuery.value = '';
-        analysisResponse.classList.add('hidden');
-        responseContent.innerHTML = '';
-    });
+    if (requestAnalysisBtn) {
+    requestAnalysisBtn.addEventListener('click', async function() { */ 
+    // End of old code - now using requestAnalysis() function
     
     // ===== UTILITY FUNCTIONS =====
     

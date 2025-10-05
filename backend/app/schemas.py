@@ -86,6 +86,7 @@ class ResponseBase(BaseModel):
     """Response base schema"""
     question: str
     response: str
+    probability_percentage: Optional[int] = None
 
 
 class ResponseCreate(ResponseBase):
@@ -110,6 +111,7 @@ class ResponsePublicResponse(BaseModel):
     uid: str
     question: str
     response: str
+    probability_percentage: Optional[int] = None
     created_at: datetime
 
 
@@ -135,6 +137,7 @@ class AIResponseSchema(BaseModel):
     """AI response schema"""
     question: str
     response: str
+    probability_percentage: Optional[int] = None
     created_at: datetime
 
 

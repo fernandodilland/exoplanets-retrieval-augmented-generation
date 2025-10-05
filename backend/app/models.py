@@ -2,11 +2,12 @@
 SQLAlchemy database models.
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, ForeignKey, Index
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 
 from app.database import Base
+from sqlalchemy import (TIMESTAMP, Column, ForeignKey, Index, Integer, String,
+                        Text)
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 
 class User(Base):
@@ -55,6 +56,7 @@ class Response(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     question = Column(Text, nullable=False)
     response = Column(Text, nullable=False)
+    probability_percentage = Column(Integer, nullable=True, comment="Exoplanet probability percentage (0-100)")
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())
     
     # Relationships

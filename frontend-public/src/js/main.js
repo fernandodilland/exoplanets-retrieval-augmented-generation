@@ -216,39 +216,101 @@ function displayResults(results) {
     container.innerHTML = '';
     
     results.forEach((result, index) => {
+        const probability = result.probability_percentage;
+        const hasProbability = probability !== null && probability !== undefined;
+        
+        // Determine styling based on probability
+        let bgGradient = 'from-blue-50 to-indigo-50';
+        let borderColor = 'border-blue-200';
+        let statusColor = 'blue';
+        let statusText = 'Analysis Result';
+        let statusIcon = '📊';
+        
+        if (hasProbability) {
+            if (probability >= 80) {
+                bgGradient = 'from-green-50 to-emerald-50';
+                borderColor = 'border-green-300';
+                statusColor = 'green';
+                statusText = 'Highly Likely Exoplanet';
+                statusIcon = '✅';
+            } else if (probability >= 60) {
+                bgGradient = 'from-blue-50 to-cyan-50';
+                borderColor = 'border-blue-300';
+                statusColor = 'blue';
+                statusText = 'Likely Exoplanet';
+                statusIcon = '✓';
+            } else if (probability >= 40) {
+                bgGradient = 'from-yellow-50 to-amber-50';
+                borderColor = 'border-yellow-300';
+                statusColor = 'yellow';
+                statusText = 'Uncertain';
+                statusIcon = '⚠️';
+            } else if (probability >= 20) {
+                bgGradient = 'from-orange-50 to-red-50';
+                borderColor = 'border-orange-300';
+                statusColor = 'orange';
+                statusText = 'Unlikely Exoplanet';
+                statusIcon = '⚠';
+            } else {
+                bgGradient = 'from-red-50 to-pink-50';
+                borderColor = 'border-red-300';
+                statusColor = 'red';
+                statusText = 'Not an Exoplanet';
+                statusIcon = '❌';
+            }
+        }
+        
         const resultItem = document.createElement('div');
-        resultItem.className = 'bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 hover:shadow-md transition duration-300 border border-blue-200 result-item';
+        resultItem.className = `bg-gradient-to-br ${bgGradient} rounded-lg p-4 hover:shadow-md transition duration-300 border ${borderColor} result-item`;
         
         const timeAgo = getTimeAgo(new Date(result.created_at));
+        
+        let probabilityHTML = '';
+        if (hasProbability) {
+            probabilityHTML = `
+                <div class="mb-3 p-3 bg-white rounded-lg border border-${statusColor}-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-${statusColor}-900">${statusIcon} ${statusText}</span>
+                        <span class="text-2xl font-bold text-${statusColor}-700">${probability}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div class="bg-${statusColor}-600 h-3 rounded-full transition-all duration-500"
+                             style="width: ${probability}%">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
         
         resultItem.innerHTML = `
             <div class="flex items-start justify-between mb-3">
                 <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-${statusColor}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <h3 class="text-lg font-bold text-gray-800">Query</h3>
+                    <h3 class="text-lg font-bold text-gray-800">${hasProbability ? 'Exoplanet Analysis' : 'Query'}</h3>
                 </div>
                 <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">${timeAgo}</span>
             </div>
+            ${probabilityHTML}
             <div class="space-y-2">
-                <div class="bg-white rounded-lg p-3 border border-blue-100">
+                <div class="bg-white rounded-lg p-3 border border-${statusColor}-100">
                     <div class="flex items-center mb-2">
-                        <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-${statusColor}-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-sm font-semibold text-gray-700">Question:</p>
                     </div>
                     <p class="text-sm text-gray-600 ml-6">${escapeHtml(result.question)}</p>
                 </div>
-                <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div class="bg-${statusColor === 'blue' ? 'green' : statusColor}-50 rounded-lg p-3 border border-${statusColor === 'blue' ? 'green' : statusColor}-200">
                     <div class="flex items-center mb-2">
-                        <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-${statusColor === 'blue' ? 'green' : statusColor}-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-sm font-semibold text-gray-700">AI Response:</p>
                     </div>
-                    <p class="text-sm text-green-700 ml-6 whitespace-pre-wrap">${escapeHtml(result.response)}</p>
+                    <p class="text-sm text-${statusColor === 'blue' ? 'green' : statusColor}-700 ml-6 whitespace-pre-wrap">${escapeHtml(result.response)}</p>
                 </div>
             </div>
         `;

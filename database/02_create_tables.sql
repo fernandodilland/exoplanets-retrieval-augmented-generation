@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `responses` (
     `user_id` INT UNSIGNED NOT NULL,
     `question` TEXT NOT NULL,
     `response` TEXT NOT NULL,
+    `probability_percentage` INT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_uid` (`uid`),
