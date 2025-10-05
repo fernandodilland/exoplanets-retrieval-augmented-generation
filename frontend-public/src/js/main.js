@@ -3,6 +3,8 @@
 // State management
 let currentFilesPage = 1;
 let currentResultsPage = 1;
+let totalFilesCount = 0;
+let totalResultsCount = 0;
 const itemsPerPage = 20;
 
 // Video initialization
@@ -85,20 +87,32 @@ function getFileStyle(filename) {
 // Load files from API
 async function loadFiles(page = 1) {
     try {
-        const result = await getFiles(page, itemsPerPage);
+        // Get total count and files in parallel
+        const [countResult, filesResult] = await Promise.all([
+            getFilesCount(),
+            getFiles(page, itemsPerPage)
+        ]);
         
-        if (result.success && result.data.length > 0) {
-            displayFiles(result.data);
+        if (countResult.success) {
+            totalFilesCount = countResult.data.count;
+        }
+        
+        if (filesResult.success && filesResult.data.length > 0) {
+            displayFiles(filesResult.data);
             currentFilesPage = page;
-        } else if (result.success && result.data.length === 0) {
+            updateFilesPagination();
+        } else if (filesResult.success && filesResult.data.length === 0) {
             displayNoFiles();
+            hideFilesPagination();
         } else {
-            console.error('Failed to load files:', result.error);
-            displayFilesError(result.error);
+            console.error('Failed to load files:', filesResult.error);
+            displayFilesError(filesResult.error);
+            hideFilesPagination();
         }
     } catch (error) {
         console.error('Error loading files:', error);
         displayFilesError(error.message);
+        hideFilesPagination();
     }
 }
 
@@ -165,20 +179,32 @@ function displayFilesError(error) {
 // Load results from API
 async function loadResults(page = 1) {
     try {
-        const result = await getResults(page, itemsPerPage);
+        // Get total count and results in parallel
+        const [countResult, resultsResult] = await Promise.all([
+            getResultsCount(),
+            getResults(page, itemsPerPage)
+        ]);
         
-        if (result.success && result.data.length > 0) {
-            displayResults(result.data);
+        if (countResult.success) {
+            totalResultsCount = countResult.data.count;
+        }
+        
+        if (resultsResult.success && resultsResult.data.length > 0) {
+            displayResults(resultsResult.data);
             currentResultsPage = page;
-        } else if (result.success && result.data.length === 0) {
+            updateResultsPagination();
+        } else if (resultsResult.success && resultsResult.data.length === 0) {
             displayNoResults();
+            hideResultsPagination();
         } else {
-            console.error('Failed to load results:', result.error);
-            displayResultsError(result.error);
+            console.error('Failed to load results:', resultsResult.error);
+            displayResultsError(resultsResult.error);
+            hideResultsPagination();
         }
     } catch (error) {
         console.error('Error loading results:', error);
         displayResultsError(error.message);
+        hideResultsPagination();
     }
 }
 
@@ -306,6 +332,173 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Pagination functions for Files
+function updateFilesPagination() {
+    const totalPages = Math.ceil(totalFilesCount / itemsPerPage);
+    
+    // Hide pagination if only one page or no items
+    if (totalPages <= 1) {
+        hideFilesPagination();
+        return;
+    }
+    
+    const paginationContainer = document.getElementById('filesPagination');
+    if (!paginationContainer) return;
+    
+    paginationContainer.innerHTML = createPaginationHTML(currentFilesPage, totalPages, 'files', 'blue');
+    paginationContainer.classList.remove('hidden');
+    paginationContainer.classList.add('flex');
+    
+    // Add event listeners
+    attachPaginationListeners('files');
+}
+
+function hideFilesPagination() {
+    const paginationContainer = document.getElementById('filesPagination');
+    if (paginationContainer) {
+        paginationContainer.classList.add('hidden');
+        paginationContainer.classList.remove('flex');
+    }
+}
+
+// Pagination functions for Results
+function updateResultsPagination() {
+    const totalPages = Math.ceil(totalResultsCount / itemsPerPage);
+    
+    // Hide pagination if only one page or no items
+    if (totalPages <= 1) {
+        hideResultsPagination();
+        return;
+    }
+    
+    const paginationContainer = document.getElementById('resultsPagination');
+    if (!paginationContainer) return;
+    
+    paginationContainer.innerHTML = createPaginationHTML(currentResultsPage, totalPages, 'results', 'purple');
+    paginationContainer.classList.remove('hidden');
+    paginationContainer.classList.add('flex');
+    
+    // Add event listeners
+    attachPaginationListeners('results');
+}
+
+function hideResultsPagination() {
+    const paginationContainer = document.getElementById('resultsPagination');
+    if (paginationContainer) {
+        paginationContainer.classList.add('hidden');
+        paginationContainer.classList.remove('flex');
+    }
+}
+
+// Create pagination HTML
+function createPaginationHTML(currentPage, totalPages, type, color) {
+    const prevDisabled = currentPage === 1;
+    const nextDisabled = currentPage === totalPages;
+    
+    // Calculate which page numbers to show
+    const pagesToShow = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+            pagesToShow.push(i);
+        }
+    } else {
+        // Show first, last, current, and neighbors
+        pagesToShow.push(1);
+        
+        let startPage = Math.max(2, currentPage - 1);
+        let endPage = Math.min(totalPages - 1, currentPage + 1);
+        
+        if (startPage > 2) {
+            pagesToShow.push('...');
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            pagesToShow.push(i);
+        }
+        
+        if (endPage < totalPages - 1) {
+            pagesToShow.push('...');
+        }
+        
+        pagesToShow.push(totalPages);
+    }
+    
+    let html = `
+        <button class="px-4 py-2 bg-gray-200 text-gray-${prevDisabled ? '400' : '700'} rounded-lg hover:bg-gray-300 transition duration-300 ${prevDisabled ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}" 
+                data-page="${currentPage - 1}" 
+                data-type="${type}" 
+                data-action="prev" 
+                ${prevDisabled ? 'disabled' : ''}>
+            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Previous
+        </button>
+        <div class="flex space-x-2">
+    `;
+    
+    pagesToShow.forEach(page => {
+        if (page === '...') {
+            html += `<span class="px-4 py-2 text-gray-500">...</span>`;
+        } else {
+            const isActive = page === currentPage;
+            html += `
+                <button class="px-4 py-2 ${isActive ? `bg-${color}-600 text-white` : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} rounded-lg ${isActive ? 'shadow-md' : ''} transition duration-300" 
+                        data-page="${page}" 
+                        data-type="${type}" 
+                        data-action="page"
+                        ${isActive ? 'disabled' : ''}>
+                    ${page}
+                </button>
+            `;
+        }
+    });
+    
+    html += `
+        </div>
+        <button class="px-4 py-2 bg-${color}-600 text-white rounded-lg hover:bg-${color}-700 transition duration-300 ${nextDisabled ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}" 
+                data-page="${currentPage + 1}" 
+                data-type="${type}" 
+                data-action="next"
+                ${nextDisabled ? 'disabled' : ''}>
+            Next
+            <svg class="w-5 h-5 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+    `;
+    
+    return html;
+}
+
+// Attach pagination event listeners
+function attachPaginationListeners(type) {
+    const paginationContainer = document.getElementById(`${type}Pagination`);
+    if (!paginationContainer) return;
+    
+    paginationContainer.querySelectorAll('button[data-type]').forEach(button => {
+        button.addEventListener('click', function() {
+            const page = parseInt(this.getAttribute('data-page'));
+            const buttonType = this.getAttribute('data-type');
+            
+            if (buttonType === 'files') {
+                loadFiles(page);
+            } else if (buttonType === 'results') {
+                loadResults(page);
+            }
+            
+            // Scroll to top of section
+            const section = paginationContainer.closest('.bg-white');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
 
 // Welcome log in console
 console.log('%c🌌 Exoplanets Retrieval-augmented generation', 'color: #4F46E5; font-size: 20px; font-weight: bold;');
