@@ -3,8 +3,8 @@ Pydantic schemas for request/response validation.
 """
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, ConfigDict
 
+from pydantic import BaseModel, ConfigDict, Field
 
 # ============= Auth Schemas =============
 
@@ -117,7 +117,18 @@ class ResponsePublicResponse(BaseModel):
 
 class AIRequestSchema(BaseModel):
     """AI request schema"""
-    prompt: str = Field(..., min_length=1, max_length=5000)
+    question: Optional[str] = Field(None, min_length=1, max_length=5000)
+    prompt: Optional[str] = Field(None, min_length=1, max_length=5000)
+    
+    @property
+    def query_text(self) -> str:
+        """Get the query text, prioritizing 'question' over 'prompt'"""
+        return self.question or self.prompt or ""
+    
+    def model_post_init(self, __context) -> None:
+        """Validate that at least one field is provided"""
+        if not self.question and not self.prompt:
+            raise ValueError("Either 'question' or 'prompt' field is required")
 
 
 class AIResponseSchema(BaseModel):
