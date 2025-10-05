@@ -2,6 +2,7 @@
 File upload endpoints.
 """
 import os
+import re
 from pathlib import Path
 from urllib.parse import quote
 
@@ -31,6 +32,26 @@ def validate_file_extension(filename: str) -> bool:
     """
     file_ext = Path(filename).suffix.lower()
     return file_ext in settings.allowed_file_extensions_list
+
+
+def clean_filename(filename: str) -> str:
+    """
+    Clean filename by removing numeric prefixes like '0_', '1_', etc.
+    
+    Args:
+        filename: Original filename
+        
+    Returns:
+        Cleaned filename without numeric prefix
+        
+    Examples:
+        '0_Additional Resources_.pdf' -> 'Additional Resources_.pdf'
+        '123_document.pdf' -> 'document.pdf'
+        'normal_file.pdf' -> 'normal_file.pdf'
+    """
+    # Remove pattern: starts with digits followed by underscore
+    cleaned = re.sub(r'^\d+_', '', filename)
+    return cleaned
 
 
 @router.post("/upload", response_model=UploadResponse)
@@ -75,9 +96,12 @@ async def upload_file(
     await file.seek(0)
     
     try:
+        # Clean filename by removing numeric prefixes like '0_', '1_', etc.
+        cleaned_filename = clean_filename(file.filename)
+        
         # Generate unique filename with timestamp
         timestamp = int(os.times().elapsed * 1000)
-        safe_filename = f"{timestamp}_{file.filename}"
+        safe_filename = f"{timestamp}_{cleaned_filename}"
         
         # Store file directly in root (no subdirectories)
         r2_path = safe_filename
