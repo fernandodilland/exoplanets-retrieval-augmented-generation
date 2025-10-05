@@ -1,6 +1,6 @@
 # Environment files
-backend\.env.development
-backend\.env.production
+backend/.env.development
+backend/.env.production
 
 # Python
 __pycache__/
