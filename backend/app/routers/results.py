@@ -2,13 +2,13 @@
 Public results endpoint.
 """
 from typing import List
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from app.database import get_db
 from app.models import Response
 from app.schemas import ResponsePublicResponse
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api", tags=["Public"])
 
@@ -47,6 +47,7 @@ async def get_results(
             uid=response.uid,
             question=response.question,
             response=response.response,
+            probability_percentage=response.probability_percentage,
             created_at=response.created_at
         )
         for response in responses

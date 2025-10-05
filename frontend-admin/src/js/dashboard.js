@@ -13,6 +13,12 @@ function logout() {
 
 // ===== GLOBAL REQUEST ANALYSIS FUNCTION =====
 async function requestAnalysis() {
+    console.log('=== REQUEST ANALYSIS STARTED ===');
+    
+    // Get button element
+    const requestButton = document.getElementById('requestAnalysisBtn');
+    const buttonText = document.getElementById('requestAnalysisBtnText');
+    
     // Get form values
     const prompt = document.getElementById('exoplanetPrompt')?.value?.trim();
     const maxResults = document.getElementById('maxResults')?.value;
@@ -24,10 +30,24 @@ async function requestAnalysis() {
     const starType = document.getElementById('starType')?.value;
     const habitableZone = document.getElementById('habitableZone')?.checked;
     
+    console.log('Form values:', { prompt, maxResults, scoreThreshold, planetRadius, planetMass, orbitalPeriod, distance, starType, habitableZone });
+    
     // Validate main prompt
     if (!prompt && !planetRadius && !planetMass && !orbitalPeriod) {
         showNotification('Please provide either a description or at least one parameter', 'error');
+        console.log('Validation failed: No data provided');
         return;
+    }
+    
+    // Disable button and change text
+    if (requestButton) {
+        requestButton.disabled = true;
+        requestButton.style.opacity = '0.6';
+        requestButton.style.cursor = 'not-allowed';
+        if (buttonText) {
+            buttonText.textContent = 'Analyzing...';
+        }
+        console.log('Button disabled');
     }
     
     // Build structured analysis configuration in JSON format (in English)
@@ -66,7 +86,7 @@ async function requestAnalysis() {
     // Add instruction for probability
     fullQuery += 'Please analyze if this celestial body is likely an exoplanet and provide a probability percentage (0-100).';
     
-    console.log('Sending analysis request:', fullQuery);
+    console.log('Sending analysis request with query:', fullQuery);
     
     // Show loading state
     const resultsArea = document.getElementById('resultsArea');
@@ -83,16 +103,24 @@ async function requestAnalysis() {
                 <span class="text-gray-700 font-semibold">Analyzing exoplanet data...</span>
             </div>
         `;
+        console.log('Loading state displayed');
     }
     
     try {
+        console.log('Calling sendAIRequest...');
         // Send request to API
         const result = await sendAIRequest(fullQuery);
         
+        console.log('API Response received:', result);
+        
         if (result.success) {
+            console.log('Success! Displaying results...');
+            console.log('Result data:', result.data);
             displayAnalysisResult(result.data);
             showNotification('Analysis completed successfully', 'success');
+            console.log('displayAnalysisResult called successfully');
         } else {
+            console.error('API returned error:', result.error);
             showNotification(result.error || 'Failed to analyze', 'error');
             if (resultsContent) {
                 resultsContent.innerHTML = `
@@ -104,7 +132,8 @@ async function requestAnalysis() {
             }
         }
     } catch (error) {
-        console.error('Analysis error:', error);
+        console.error('Exception in requestAnalysis:', error);
+        console.error('Error stack:', error.stack);
         showNotification('An unexpected error occurred', 'error');
         if (resultsContent) {
             resultsContent.innerHTML = `
@@ -114,6 +143,18 @@ async function requestAnalysis() {
                 </div>
             `;
         }
+    } finally {
+        // Re-enable button and restore text
+        if (requestButton) {
+            requestButton.disabled = false;
+            requestButton.style.opacity = '1';
+            requestButton.style.cursor = 'pointer';
+            if (buttonText) {
+                buttonText.textContent = 'Request Analysis';
+            }
+            console.log('Button re-enabled');
+        }
+        console.log('=== REQUEST ANALYSIS COMPLETED ===');
     }
 }
 

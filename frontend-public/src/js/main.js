@@ -208,6 +208,39 @@ async function loadResults(page = 1) {
     }
 }
 
+// Parse analysis parameters from question text
+function parseAnalysisParameters(questionText) {
+    const params = {};
+    
+    try {
+        // Try to extract JSON configuration
+        const configMatch = questionText.match(/Configuration:\s*({[^}]+})/i);
+        if (configMatch) {
+            const config = JSON.parse(configMatch[1]);
+            params.max_results = config.max_results;
+            params.score_threshold = config.score_threshold;
+        }
+        
+        // Try to extract analysis parameters
+        const paramsMatch = questionText.match(/Analysis Parameters:\s*({[\s\S]+?})\s*(?:Configuration:|$)/i);
+        if (paramsMatch) {
+            const analysisParams = JSON.parse(paramsMatch[1]);
+            Object.assign(params, analysisParams);
+        }
+        
+        // Extract user description (before Analysis Parameters)
+        const descMatch = questionText.match(/^([\s\S]+?)(?:\n\nAnalysis Parameters:|Configuration:|Please analyze)/i);
+        if (descMatch) {
+            params.description = descMatch[1].trim();
+        }
+    } catch (e) {
+        // If parsing fails, treat as simple query
+        params.simple_query = questionText;
+    }
+    
+    return params;
+}
+
 // Display results in the UI
 function displayResults(results) {
     const container = document.querySelector('.bg-white.rounded-xl.shadow-lg:last-child .space-y-4');
@@ -219,102 +252,151 @@ function displayResults(results) {
         const probability = result.probability_percentage;
         const hasProbability = probability !== null && probability !== undefined;
         
-        // Determine styling based on probability
-        let bgGradient = 'from-blue-50 to-indigo-50';
-        let borderColor = 'border-blue-200';
-        let statusColor = 'blue';
-        let statusText = 'Analysis Result';
-        let statusIcon = '📊';
+        // Parse parameters from question
+        const params = parseAnalysisParameters(result.question);
+        const isScientificAnalysis = !params.simple_query;
+        
+        // Determine styling based on probability - using inline styles
+        let barColor = '#6B7280';
+        let bgColor = '#F9FAFB';
+        let borderColor = '#E5E7EB';
+        let textColor = '#111827';
+        let statusText = 'Research Result';
+        let statusIcon = '�';
         
         if (hasProbability) {
             if (probability >= 80) {
-                bgGradient = 'from-green-50 to-emerald-50';
-                borderColor = 'border-green-300';
-                statusColor = 'green';
+                barColor = '#10B981';
+                bgColor = '#ECFDF5';
+                borderColor = '#A7F3D0';
+                textColor = '#065F46';
                 statusText = 'Highly Likely Exoplanet';
                 statusIcon = '✅';
             } else if (probability >= 60) {
-                bgGradient = 'from-blue-50 to-cyan-50';
-                borderColor = 'border-blue-300';
-                statusColor = 'blue';
+                barColor = '#3B82F6';
+                bgColor = '#EFF6FF';
+                borderColor = '#BFDBFE';
+                textColor = '#1E3A8A';
                 statusText = 'Likely Exoplanet';
                 statusIcon = '✓';
             } else if (probability >= 40) {
-                bgGradient = 'from-yellow-50 to-amber-50';
-                borderColor = 'border-yellow-300';
-                statusColor = 'yellow';
+                barColor = '#F59E0B';
+                bgColor = '#FFFBEB';
+                borderColor = '#FDE68A';
+                textColor = '#78350F';
                 statusText = 'Uncertain';
                 statusIcon = '⚠️';
             } else if (probability >= 20) {
-                bgGradient = 'from-orange-50 to-red-50';
-                borderColor = 'border-orange-300';
-                statusColor = 'orange';
+                barColor = '#F97316';
+                bgColor = '#FFF7ED';
+                borderColor = '#FED7AA';
+                textColor = '#7C2D12';
                 statusText = 'Unlikely Exoplanet';
                 statusIcon = '⚠';
             } else {
-                bgGradient = 'from-red-50 to-pink-50';
-                borderColor = 'border-red-300';
-                statusColor = 'red';
+                barColor = '#EF4444';
+                bgColor = '#FEF2F2';
+                borderColor = '#FECACA';
+                textColor = '#7F1D1D';
                 statusText = 'Not an Exoplanet';
                 statusIcon = '❌';
             }
         }
         
         const resultItem = document.createElement('div');
-        resultItem.className = `bg-gradient-to-br ${bgGradient} rounded-lg p-4 hover:shadow-md transition duration-300 border ${borderColor} result-item`;
+        resultItem.className = 'rounded-lg p-4 hover:shadow-lg transition duration-300 border result-item';
+        resultItem.style.backgroundColor = bgColor;
+        resultItem.style.borderColor = borderColor;
         
         const timeAgo = getTimeAgo(new Date(result.created_at));
+        const uniqueId = `result-${result.uid}`;
         
-        let probabilityHTML = '';
+        // Build HTML content
+        let contentHTML = `
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" style="color: ${textColor};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    <h3 class="text-lg font-bold" style="color: ${textColor};">Exoplanet Research</h3>
+                </div>
+                <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">${timeAgo}</span>
+            </div>
+        `;
+        
+        // Research parameters (if scientific analysis)
+        if (isScientificAnalysis && Object.keys(params).length > 0) {
+            contentHTML += '<div class="mb-3 p-3 bg-white rounded-lg border border-gray-200">';
+            contentHTML += '<p class="text-xs font-semibold text-gray-700 mb-2">🔬 Research Parameters</p>';
+            contentHTML += '<div class="grid grid-cols-2 gap-2 text-xs">';
+            
+            if (params.radius_earth) contentHTML += `<div><span class="text-gray-600">Radius:</span> <span class="font-semibold text-gray-800">${params.radius_earth} R⊕</span></div>`;
+            if (params.mass_earth) contentHTML += `<div><span class="text-gray-600">Mass:</span> <span class="font-semibold text-gray-800">${params.mass_earth} M⊕</span></div>`;
+            if (params.orbital_period_days) contentHTML += `<div><span class="text-gray-600">Orbital Period:</span> <span class="font-semibold text-gray-800">${params.orbital_period_days} days</span></div>`;
+            if (params.distance_light_years) contentHTML += `<div><span class="text-gray-600">Distance:</span> <span class="font-semibold text-gray-800">${params.distance_light_years} ly</span></div>`;
+            if (params.star_type) contentHTML += `<div><span class="text-gray-600">Star Type:</span> <span class="font-semibold text-gray-800">${params.star_type}</span></div>`;
+            if (params.in_habitable_zone !== undefined) contentHTML += `<div><span class="text-gray-600">Habitable Zone:</span> <span class="font-semibold text-gray-800">${params.in_habitable_zone ? 'Yes' : 'No'}</span></div>`;
+            if (params.max_results) contentHTML += `<div><span class="text-gray-600">Max Results:</span> <span class="font-semibold text-gray-800">${params.max_results}</span></div>`;
+            if (params.score_threshold) contentHTML += `<div><span class="text-gray-600">Score Threshold:</span> <span class="font-semibold text-gray-800">${params.score_threshold}</span></div>`;
+            
+            contentHTML += '</div>';
+            if (params.description) {
+                contentHTML += `<p class="text-xs text-gray-600 mt-2 italic">"${escapeHtml(params.description)}"</p>`;
+            }
+            contentHTML += '</div>';
+        }
+        
+        // Probability section (clickable)
         if (hasProbability) {
-            probabilityHTML = `
-                <div class="mb-3 p-3 bg-white rounded-lg border border-${statusColor}-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-bold text-${statusColor}-900">${statusIcon} ${statusText}</span>
-                        <span class="text-2xl font-bold text-${statusColor}-700">${probability}%</span>
+            contentHTML += `
+                <div class="mb-3 p-4 bg-white rounded-lg border-2 cursor-pointer hover:shadow-md transition-all" 
+                     style="border-color: ${borderColor};"
+                     onclick="document.getElementById('${uniqueId}-details').classList.toggle('hidden')">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-600 mb-1">Research Result Using AI</p>
+                            <p class="text-sm font-bold" style="color: ${textColor};">${statusIcon} ${statusText}</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold" style="color: ${textColor};">${probability}%</div>
+                            <p class="text-xs text-gray-500 mt-1">Click for details</p>
+                        </div>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div class="bg-${statusColor}-600 h-3 rounded-full transition-all duration-500"
-                             style="width: ${probability}%">
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-3 overflow-hidden">
+                        <div class="h-2 rounded-full transition-all duration-500"
+                             style="width: ${probability}%; background-color: ${barColor};">
                         </div>
                     </div>
                 </div>
             `;
+            
+            // Hidden detailed response
+            contentHTML += `
+                <div id="${uniqueId}-details" class="hidden mb-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-center mb-2">
+                        <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm font-semibold text-blue-900">Detailed Analysis</p>
+                    </div>
+                    <p class="text-sm text-blue-800 whitespace-pre-wrap">${escapeHtml(result.response)}</p>
+                </div>
+            `;
+        } else {
+            // No probability - show simple format
+            contentHTML += `
+                <div class="mb-3 p-3 bg-white rounded-lg border border-gray-200">
+                    <p class="text-xs font-semibold text-gray-700 mb-2">📝 Query</p>
+                    <p class="text-sm text-gray-600">${escapeHtml(params.simple_query || result.question)}</p>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-xs font-semibold text-blue-900 mb-2">🤖 AI Response</p>
+                    <p class="text-sm text-blue-800 whitespace-pre-wrap">${escapeHtml(result.response)}</p>
+                </div>
+            `;
         }
         
-        resultItem.innerHTML = `
-            <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-${statusColor}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <h3 class="text-lg font-bold text-gray-800">${hasProbability ? 'Exoplanet Analysis' : 'Query'}</h3>
-                </div>
-                <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">${timeAgo}</span>
-            </div>
-            ${probabilityHTML}
-            <div class="space-y-2">
-                <div class="bg-white rounded-lg p-3 border border-${statusColor}-100">
-                    <div class="flex items-center mb-2">
-                        <svg class="w-4 h-4 text-${statusColor}-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">Question:</p>
-                    </div>
-                    <p class="text-sm text-gray-600 ml-6">${escapeHtml(result.question)}</p>
-                </div>
-                <div class="bg-${statusColor === 'blue' ? 'green' : statusColor}-50 rounded-lg p-3 border border-${statusColor === 'blue' ? 'green' : statusColor}-200">
-                    <div class="flex items-center mb-2">
-                        <svg class="w-4 h-4 text-${statusColor === 'blue' ? 'green' : statusColor}-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p class="text-sm font-semibold text-gray-700">AI Response:</p>
-                    </div>
-                    <p class="text-sm text-${statusColor === 'blue' ? 'green' : statusColor}-700 ml-6 whitespace-pre-wrap">${escapeHtml(result.response)}</p>
-                </div>
-            </div>
-        `;
-        
+        resultItem.innerHTML = contentHTML;
         container.appendChild(resultItem);
     });
 }
